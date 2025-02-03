@@ -2,13 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Broadcast Stream</title>
+  <title>Missoula Scanner</title>
   <style>
     /* Remove any background images and use a solid background color */
     body {
       margin: 0;
       padding: 0;
-      background: #f0f0f0;
+      background-color: #f0f0f0;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -36,7 +36,7 @@
       display: inline-block;
     }
     
-    /* Blinking animation */
+    /* Blinking animation to be applied when streaming */
     .blink {
       animation: blink 1s infinite;
     }
@@ -49,9 +49,9 @@
     
     /* Start button styling */
     #startButton {
+      margin-top: 20px;
       padding: 10px 20px;
       font-size: 1rem;
-      margin-top: 20px;
       cursor: pointer;
     }
   </style>
@@ -63,26 +63,26 @@
   <!-- Status indicator -->
   <div id="status">Click the button to start streaming</div>
   
-  <!-- Dots that will blink once the stream is playing -->
+  <!-- Dots that will blink once the stream is connected -->
   <div id="dots">
     <span class="dot">.</span>
     <span class="dot">.</span>
     <span class="dot">.</span>
   </div>
   
-  <!-- Button to start the audio stream -->
+  <!-- Button to initiate the stream (helps with autoplay restrictions) -->
   <button id="startButton">Start Stream</button>
-
+  
   <script>
     const audio = document.getElementById('stream');
     const dots = document.querySelectorAll('.dot');
     const status = document.getElementById('status');
     const startButton = document.getElementById('startButton');
 
-    // Start playback when the user clicks the button.
+    // Begin playback when the user clicks the button.
     startButton.addEventListener('click', () => {
       audio.play().then(() => {
-        // Hide the start button once playback starts.
+        // Hide the button once playback starts.
         startButton.style.display = 'none';
         status.textContent = 'Connecting...';
       }).catch(err => {
@@ -91,19 +91,19 @@
       });
     });
     
-    // When the stream actually starts playing, add the blinking effect.
+    // When the audio stream starts playing, add the blinking effect.
     audio.addEventListener('playing', () => {
-      dots.forEach(dot => dot.classList.add('blink'));
       status.textContent = 'Streaming...';
+      dots.forEach(dot => dot.classList.add('blink'));
     });
     
-    // Optionally, if the stream pauses, remove the blinking.
+    // If the stream pauses, remove the blinking effect.
     audio.addEventListener('pause', () => {
-      dots.forEach(dot => dot.classList.remove('blink'));
       status.textContent = 'Paused';
+      dots.forEach(dot => dot.classList.remove('blink'));
     });
     
-    // Handle any audio errors.
+    // Handle audio errors
     audio.addEventListener('error', (e) => {
       console.error('Audio error:', e);
       status.textContent = 'Error connecting to stream.';
