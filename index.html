@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Missoula Police Scanner</title>
+    <title>Missoula Police Scanner - Live</title>
     <style>
         body {
             background: #190250;
@@ -12,8 +12,21 @@
             font-family: Arial, sans-serif;
             padding: 20px;
         }
+
+        /* Streaming Status */
+        #streamStatus {
+            font-size: 18px;
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            display: inline-block;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        /* Buttons */
         button {
-            background: #6A5ACD;
+            background: linear-gradient(145deg, #6A5ACD, #5b4ac4);
             color: white;
             border: none;
             padding: 12px 25px;
@@ -21,22 +34,40 @@
             border-radius: 8px;
             cursor: pointer;
             margin-top: 10px;
+            transition: all 0.2s ease-in-out;
         }
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.2);
+        }
+
+        /* Volume Slider */
         input[type="range"] {
             width: 80%;
             margin-top: 10px;
         }
+
+        /* Waveform Animation */
         canvas {
             background: #10063B;
             margin-top: 15px;
             border-radius: 6px;
-            width: 350px;
-            height: 60px;
+            width: 100%;
+            max-width: 350px;
+            height: 80px;
+        }
+
+        /* Live Listener Counter */
+        #listenerCount {
+            font-size: 16px;
+            color: #FFD700;
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
     <h2>🎧 Missoula Police Scanner - Live Stream</h2>
+    <p id="listenerCount">🔴 Fetching Live Listeners...</p>
     <audio id="scannerPlayer" src="https://listen.broadcastify.com/82m7nxfkt4hw6vd.mp3" type="audio/mpeg"></audio>
 
     <!-- Play/Pause Button -->
@@ -63,10 +94,12 @@
                 audio.play();
                 btn.innerHTML = "⏸ Pause";
                 statusText.innerHTML = "🔊 Now Streaming...";
+                statusText.style.background = "rgba(0, 255, 0, 0.3)";
             } else {
                 audio.pause();
                 btn.innerHTML = "▶ Play";
                 statusText.innerHTML = "Click to Listen";
+                statusText.style.background = "rgba(255, 255, 255, 0.1)";
             }
         });
 
@@ -110,6 +143,25 @@
                 drawWaveform();
             });
         });
+
+        // Fetch Live Listener Count (Scraping Broadcastify)
+        async function fetchListenerCount() {
+            try {
+                let response = await fetch("https://www.broadcastify.com/listen/feed/44505");
+                let text = await response.text();
+                let match = text.match(/<b>(\d+)<\/b> listeners/);
+                if (match) {
+                    document.getElementById("listenerCount").innerHTML = `🔴 Live Listeners: ${match[1]}`;
+                } else {
+                    document.getElementById("listenerCount").innerHTML = `🔴 Unable to fetch listeners.`;
+                }
+            } catch (error) {
+                document.getElementById("listenerCount").innerHTML = `🔴 Error fetching listeners.`;
+            }
+        }
+
+        fetchListenerCount();
+        setInterval(fetchListenerCount, 30000); // Refresh every 30 seconds
     </script>
 </body>
 </html>
