@@ -1,220 +1,56 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Missoula Police Scanner - Live</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <style>
-        /* Updated Background */
-        body {
-            background: linear-gradient(135deg, #190250, #2b1055);
-            text-align: center;
-            color: white;
-            font-family: Arial, sans-serif;
-            padding: 20px;
-            overflow: hidden;
+<script>
+    const ADALO_API_KEY = "YOUR_ADALO_API_KEY";  // Replace with your actual API Key
+    const USER_EMAIL = "testuser@example.com";   // Replace with logged-in user’s email (Dynamically fetched later)
+    const ADALO_APP_ID = "YOUR_APP_ID";          // Replace with your Adalo App ID
+
+    var audio = new Audio("https://listen.broadcastify.com/82m7nxfkt4hw6vd.mp3");
+    var btn = document.getElementById("playPauseBtn");
+    var volumeSlider = document.getElementById("volumeSlider");
+
+    btn.addEventListener("click", function() {
+        if (audio.paused) {
+            audio.play();
+            btn.innerHTML = "⏸ Pause";
+        } else {
+            audio.pause();
+            btn.innerHTML = "▶ Play";
         }
+    });
 
-        /* Scrolling Ticker */
-        .ticker-wrapper {
-            position: absolute;
-            top: 0;
-            width: 100%;
-            overflow: hidden;
-            background: rgba(0, 0, 0, 0.3);
-            padding: 8px 0;
+    volumeSlider.addEventListener("input", function() {
+        audio.volume = volumeSlider.value;
+    });
+
+    function switchTab(tabName) {
+        document.querySelectorAll(".content").forEach(c => c.classList.remove("active"));
+        document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+
+        document.getElementById(tabName).classList.add("active");
+        document.querySelector(`.tab[onclick="switchTab('${tabName}')"]`).classList.add("active");
+
+        if (tabName === "chat") {
+            checkPremiumAccess();
         }
+    }
 
-        .ticker {
-            display: inline-block;
-            white-space: nowrap;
-            animation: scrollTicker 12s linear infinite;
-            font-size: 16px;
-            font-weight: bold;
-            color: #FFD700;
-        }
+    async function checkPremiumAccess() {
+        try {
+            let response = await fetch(`https://api.adalo.com/v0/apps/${ADALO_APP_ID}/collections/Users?filters=[{"field":"Email","operator":"equals","value":"${USER_EMAIL}"}]`, {
+                headers: { "Authorization": `Bearer ${ADALO_API_KEY}` }
+            });
 
-        @keyframes scrollTicker {
-            from { transform: translateX(100%); }
-            to { transform: translateX(-100%); }
-        }
+            let data = await response.json();
+            let user = data[0];
 
-        /* Live Streaming Indicator */
-        #streamStatus {
-            font-size: 18px;
-            margin-top: 10px;
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.1);
-            display: inline-block;
-            border-radius: 10px;
-            transition: all 0.3s ease;
-        }
-
-        .live-indicator {
-            display: inline-block;
-            font-size: 18px;
-            color: #FFD700;
-        }
-
-        .dot {
-            animation: blink 1.5s infinite;
-            opacity: 0;
-        }
-
-        .dot:nth-child(1) { animation-delay: 0s; }
-        .dot:nth-child(2) { animation-delay: 0.5s; }
-        .dot:nth-child(3) { animation-delay: 1s; }
-
-        @keyframes blink {
-            0% { opacity: 0; }
-            50% { opacity: 1; }
-            100% { opacity: 0; }
-        }
-
-        /* Buttons */
-        button {
-            background: linear-gradient(145deg, #6A5ACD, #5b4ac4);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            font-size: 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            margin-top: 10px;
-            transition: all 0.2s ease-in-out;
-        }
-
-        button:hover {
-            transform: scale(1.05);
-            box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.2);
-        }
-
-        /* Volume Slider */
-        input[type="range"] {
-            width: 80%;
-            margin-top: 10px;
-        }
-
-        /* Waveform Animation */
-        canvas {
-            background: #10063B;
-            margin-top: 15px;
-            border-radius: 6px;
-            width: 100%;
-            max-width: 350px;
-            height: 80px;
-        }
-
-        /* Google Animated Icon */
-        .icon {
-            font-size: 50px;
-            color: #FFD700;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); opacity: 0.8; }
-            50% { transform: scale(1.2); opacity: 1; }
-            100% { transform: scale(1); opacity: 0.8; }
-        }
-    </style>
-</head>
-<body>
-
-    <!-- Scrolling Ticker -->
-    <div class="ticker-wrapper">
-        <div class="ticker" id="tickerText">🚨 Breaking News: Live Police, Fire & EMS Scanner Streaming Now! Stay Updated in Real-Time 🚨</div>
-    </div>
-
-    <h2>🎧 Missoula Police Scanner - Live Stream</h2>
-    
-    <!-- Animated Google Icon -->
-    <span class="material-icons icon">graphic_eq</span>
-
-    <!-- Streaming Indicator -->
-    <p id="streamStatus">
-        🔴 Live Stream <span class="live-indicator">
-        <span class="dot">.</span> 
-        <span class="dot">.</span> 
-        <span class="dot">.</span>
-        </span>
-    </p>
-
-    <audio id="scannerPlayer" src="https://listen.broadcastify.com/82m7nxfkt4hw6vd.mp3" type="audio/mpeg"></audio>
-
-    <!-- Play/Pause Button -->
-    <button id="playPauseBtn">▶ Play</button>
-
-    <!-- Volume Slider -->
-    <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="1">
-
-    <!-- Waveform Animation -->
-    <canvas id="visualizer"></canvas>
-
-    <script>
-        var audio = document.getElementById("scannerPlayer");
-        var btn = document.getElementById("playPauseBtn");
-        var statusText = document.getElementById("streamStatus");
-        var volumeSlider = document.getElementById("volumeSlider");
-
-        btn.addEventListener("click", function() {
-            if (audio.paused) {
-                audio.play();
-                btn.innerHTML = "⏸ Pause";
+            if (user && user.IsPremium) {
+                document.getElementById("chatFrame").src = "https://your-adalo-chat-url.com"; 
+                document.getElementById("premiumMessage").style.display = "none";
             } else {
-                audio.pause();
-                btn.innerHTML = "▶ Play";
+                document.getElementById("chatFrame").src = "";
+                document.getElementById("premiumMessage").style.display = "block";
             }
-        });
-
-        volumeSlider.addEventListener("input", function() {
-            audio.volume = volumeSlider.value;
-        });
-
-        var canvas = document.getElementById("visualizer");
-        var ctx = canvas.getContext("2d");
-        var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        var analyser = audioCtx.createAnalyser();
-        var source = audioCtx.createMediaElementSource(audio);
-        source.connect(analyser);
-        analyser.connect(audioCtx.destination);
-        analyser.fftSize = 256;
-        var bufferLength = analyser.frequencyBinCount;
-        var dataArray = new Uint8Array(bufferLength);
-
-        function drawWaveform() {
-            requestAnimationFrame(drawWaveform);
-            analyser.getByteFrequencyData(dataArray);
-            ctx.fillStyle = "#10063B";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        } catch (error) {
+            console.error("Error fetching Adalo user data:", error);
         }
-
-        audio.addEventListener("play", function() {
-            audioCtx.resume().then(() => { drawWaveform(); });
-        });
-
-        // Multiple Headlines for the Scrolling Ticker
-        let headlines = [
-            "🚨 Breaking News: Live Police, Fire & EMS Scanner for Missoula Streaming Now! Stay Updated in Real-Time 🚨",
-            "🔥 Missoula Scanner: Tune in for the latest emergency alerts & public safety updates! 🔥",
-            "🚔 Police Activity: Listen live as first responders handle real-time situations 🚔",
-            "⚠️ Missoula's Police Scanner is back online after hiatus! ⚠️"
-        ];
-
-        function updateTicker() {
-            let tickerElement = document.getElementById("tickerText");
-            let currentIndex = 0;
-
-            function changeHeadline() {
-                tickerElement.innerHTML = headlines[currentIndex];
-                currentIndex = (currentIndex + 1) % headlines.length;
-            }
-
-            setInterval(changeHeadline, 8000); // Rotate headlines every 8 seconds
-        }
-
-        updateTicker();
-    </script>
-</body>
-</html>
+    }
+</script>
