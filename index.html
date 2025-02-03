@@ -6,31 +6,14 @@
     <title>Missoula Police Scanner - Live</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <style>
+        /* Updated Background */
         body {
-            background: #190250;
+            background: linear-gradient(135deg, #190250, #2b1055);
             text-align: center;
             color: white;
             font-family: Arial, sans-serif;
             padding: 20px;
             overflow: hidden;
-        }
-
-        /* Animated Background Waves */
-        @keyframes waveMove {
-            0% { transform: translateX(0); opacity: 0.3; }
-            50% { transform: translateX(-10px); opacity: 0.6; }
-            100% { transform: translateX(0); opacity: 0.3; }
-        }
-        .wave-bg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: url('https://i.imgur.com/809EtXQ.jpeg'); /* Replace with radio wave texture */
-            opacity: 0.2;
-            animation: waveMove 4s infinite alternate ease-in-out;
-            z-index: -1;
         }
 
         /* Scrolling Ticker */
@@ -138,11 +121,10 @@
     </style>
 </head>
 <body>
-    <div class="wave-bg"></div>
 
     <!-- Scrolling Ticker -->
     <div class="ticker-wrapper">
-        <div class="ticker">🚨 Breaking News: Live Police, Fire & EMS Scanner Streaming Now! Stay Updated in Real-Time 🚨</div>
+        <div class="ticker" id="tickerText">🚨 Breaking News: Live Police, Fire & EMS Scanner Streaming Now! Stay Updated in Real-Time 🚨</div>
     </div>
 
     <h2>🎧 Missoula Police Scanner - Live Stream</h2>
@@ -211,6 +193,28 @@
         audio.addEventListener("play", function() {
             audioCtx.resume().then(() => { drawWaveform(); });
         });
+
+        // Multiple Headlines for the Scrolling Ticker
+        let headlines = [
+            "🚨 Breaking News: Live Police, Fire & EMS Scanner Streaming Now! Stay Updated in Real-Time 🚨",
+            "🔥 Missoula Scanner: Tune in for the latest emergency alerts & public safety updates! 🔥",
+            "🚔 Police Activity: Listen live as first responders handle real-time situations 🚔",
+            "⚠️ Stay Alert: Weather updates, road closures & emergency dispatch in your area ⚠️"
+        ];
+
+        function updateTicker() {
+            let tickerElement = document.getElementById("tickerText");
+            let currentIndex = 0;
+
+            function changeHeadline() {
+                tickerElement.innerHTML = headlines[currentIndex];
+                currentIndex = (currentIndex + 1) % headlines.length;
+            }
+
+            setInterval(changeHeadline, 8000); // Rotate headlines every 8 seconds
+        }
+
+        updateTicker();
     </script>
 </body>
 </html>
