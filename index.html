@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Missoula Police Scanner</title>
+    <style>
+        body {
+            background: #190250;
+            text-align: center;
+            color: white;
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        button {
+            background: #6A5ACD;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        input[type="range"] {
+            width: 80%;
+            margin-top: 10px;
+        }
+        canvas {
+            background: #10063B;
+            margin-top: 15px;
+            border-radius: 6px;
+            width: 350px;
+            height: 60px;
+        }
+    </style>
+</head>
+<body>
+    <h2>🎧 Missoula Police Scanner - Live Stream</h2>
+    <audio id="scannerPlayer" src="https://listen.broadcastify.com/82m7nxfkt4hw6vd.mp3" type="audio/mpeg"></audio>
+
+    <!-- Play/Pause Button -->
+    <button id="playPauseBtn">▶ Play</button>
+
+    <!-- Streaming Status -->
+    <p id="streamStatus">Click to Listen</p>
+
+    <!-- Volume Slider -->
+    <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="1">
+
+    <!-- Waveform Animation -->
+    <canvas id="visualizer"></canvas>
+
+    <script>
+        var audio = document.getElementById("scannerPlayer");
+        var btn = document.getElementById("playPauseBtn");
+        var statusText = document.getElementById("streamStatus");
+        var volumeSlider = document.getElementById("volumeSlider");
+
+        // Play/Pause Functionality
+        btn.addEventListener("click", function() {
+            if (audio.paused) {
+                audio.play();
+                btn.innerHTML = "⏸ Pause";
+                statusText.innerHTML = "🔊 Now Streaming...";
+            } else {
+                audio.pause();
+                btn.innerHTML = "▶ Play";
+                statusText.innerHTML = "Click to Listen";
+            }
+        });
+
+        // Volume Control
+        volumeSlider.addEventListener("input", function() {
+            audio.volume = volumeSlider.value;
+        });
+
+        // Waveform Animation
+        var canvas = document.getElementById("visualizer");
+        var ctx = canvas.getContext("2d");
+        var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        var analyser = audioCtx.createAnalyser();
+        var source = audioCtx.createMediaElementSource(audio);
+        source.connect(analyser);
+        analyser.connect(audioCtx.destination);
+        analyser.fftSize = 256;
+        var bufferLength = analyser.frequencyBinCount;
+        var dataArray = new Uint8Array(bufferLength);
+
+        function drawWaveform() {
+            requestAnimationFrame(drawWaveform);
+            analyser.getByteFrequencyData(dataArray);
+            ctx.fillStyle = "#10063B";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            var barWidth = (canvas.width / bufferLength) * 2.5;
+            var barHeight;
+            var x = 0;
+
+            for (var i = 0; i < bufferLength; i++) {
+                barHeight = dataArray[i] / 2;
+                ctx.fillStyle = "#6A5ACD";
+                ctx.fillRect(x, canvas.height - barHeight / 2, barWidth, barHeight);
+                x += barWidth + 1;
+            }
+        }
+
+        // Start animation only when audio is playing
+        audio.addEventListener("play", function() {
+            audioCtx.resume().then(() => {
+                drawWaveform();
+            });
+        });
+    </script>
+</body>
+</html>
