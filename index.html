@@ -72,16 +72,6 @@
             box-shadow: 0px 0px 15px rgba(255, 152, 0, 0.4);
         }
 
-        /* Volume Control */
-        .volume-container {
-            margin-top: 15px;
-        }
-
-        input[type="range"] {
-            width: 80%;
-            margin-top: 10px;
-        }
-
         /* Tabs Navigation */
         .tab-container {
             display: flex;
@@ -129,13 +119,7 @@
     <!-- Player Container -->
     <div class="player-container">
         <h3>Missoula Police, Sheriff, Fire & EMS</h3>
-
         <button id="playPauseBtn" class="play-btn">▶ Play</button>
-
-        <div class="volume-container">
-            <p>Volume</p>
-            <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="1">
-        </div>
     </div>
 
     <!-- Tabs -->
@@ -159,52 +143,32 @@
 
     <div id="chat" class="content">
         <h3>💬 Scanner Community Chat</h3>
-        <iframe id="chatFrame" src="" width="100%" height="400px" style="border: none;"></iframe>
-        <p id="premiumMessage" style="color: red; text-align: center; display: none;">🔒 Premium Feature! Upgrade to Access.</p>
+        <iframe id="chatFrame" src="https://your-adalo-chat-url.com" width="100%" height="400px" style="border: none;"></iframe>
     </div>
 
     <script>
-        var audio = new Audio("https://listen.broadcastify.com/82m7nxfkt4hw6vd.mp3");
-        var btn = document.getElementById("playPauseBtn");
-        var volumeSlider = document.getElementById("volumeSlider");
+        window.onload = function() {
+            var audio = new Audio("https://listen.broadcastify.com/82m7nxfkt4hw6vd.mp3");
+            var btn = document.getElementById("playPauseBtn");
 
-        btn.addEventListener("click", function() {
-            if (audio.paused) {
-                audio.play();
-                btn.innerHTML = "⏸ Pause";
-            } else {
-                audio.pause();
-                btn.innerHTML = "▶ Play";
+            btn.addEventListener("click", function() {
+                if (audio.paused) {
+                    audio.play();
+                    btn.innerHTML = "⏸ Pause";
+                } else {
+                    audio.pause();
+                    btn.innerHTML = "▶ Play";
+                }
+            });
+
+            function switchTab(tabName) {
+                document.querySelectorAll(".content").forEach(c => c.classList.remove("active"));
+                document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+
+                document.getElementById(tabName).classList.add("active");
+                document.querySelector(`.tab[onclick="switchTab('${tabName}')"]`).classList.add("active");
             }
-        });
-
-        volumeSlider.addEventListener("input", function() {
-            audio.volume = volumeSlider.value;
-        });
-
-        function switchTab(tabName) {
-            document.querySelectorAll(".content").forEach(c => c.classList.remove("active"));
-            document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-            
-            document.getElementById(tabName).classList.add("active");
-            document.querySelector(`.tab[onclick="switchTab('${tabName}')"]`).classList.add("active");
-
-            if (tabName === "chat") {
-                checkPremiumAccess();
-            }
-        }
-
-        function checkPremiumAccess() {
-            let isPremiumUser = false; // Change this to pull from Adalo database later
-
-            if (isPremiumUser) {
-                document.getElementById("chatFrame").src = "https://your-adalo-chat-url.com"; 
-                document.getElementById("premiumMessage").style.display = "none";
-            } else {
-                document.getElementById("chatFrame").src = "";
-                document.getElementById("premiumMessage").style.display = "block";
-            }
-        }
+        };
     </script>
 
 </body>
