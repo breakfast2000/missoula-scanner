@@ -6,16 +6,49 @@
     <title>Missoula Scanner - Gamified</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <style>
+        /* Glassmorphism UI */
         body {
-            background: #190250;
+            background: rgba(25, 2, 80, 0.9);
             text-align: center;
             color: white;
             font-family: Arial, sans-serif;
             padding: 20px;
+            backdrop-filter: blur(10px);
             overflow: hidden;
         }
 
-        /* XP BAR */
+        /* Streaming Indicator */
+        #streamStatus {
+            font-size: 18px;
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            display: inline-block;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .live-indicator {
+            font-size: 18px;
+            color: #FFD700;
+        }
+
+        .dot {
+            animation: blink 1.5s infinite;
+            opacity: 0;
+        }
+
+        .dot:nth-child(1) { animation-delay: 0s; }
+        .dot:nth-child(2) { animation-delay: 0.5s; }
+        .dot:nth-child(3) { animation-delay: 1s; }
+
+        @keyframes blink {
+            0% { opacity: 0; }
+            50% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        /* XP Bar */
         .xp-bar-container {
             width: 80%;
             background: rgba(255, 255, 255, 0.2);
@@ -32,7 +65,7 @@
             transition: width 0.5s ease-in-out;
         }
 
-        /* BADGE UNLOCK POPUP */
+        /* Badge Unlock Popup */
         .badge-popup {
             position: fixed;
             top: -100px;
@@ -48,7 +81,7 @@
             transition: top 0.5s ease-in-out;
         }
 
-        /* LEADERBOARD */
+        /* Leaderboard */
         .leaderboard {
             margin-top: 20px;
             padding: 10px;
@@ -59,30 +92,46 @@
             width: 80%;
         }
 
-        /* Daily Challenge */
-        .challenge-box {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 15px;
-            border-radius: 10px;
-            margin: 20px auto;
-            width: 80%;
-            text-align: center;
-            font-weight: bold;
+        /* Scrolling Ticker */
+        .ticker-wrapper {
+            width: 100%;
+            overflow: hidden;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 8px 0;
         }
 
-        /* Badges */
-        .badge {
+        .ticker {
             display: inline-block;
-            background: rgba(255, 215, 0, 0.3);
-            padding: 8px 15px;
-            border-radius: 10px;
-            margin: 5px;
+            white-space: nowrap;
+            animation: scrollTicker 12s linear infinite;
+            font-size: 16px;
+            font-weight: bold;
+            color: #FFD700;
+        }
+
+        @keyframes scrollTicker {
+            from { transform: translateX(100%); }
+            to { transform: translateX(-100%); }
         }
     </style>
 </head>
 <body>
 
+    <!-- Ticker Feed -->
+    <div class="ticker-wrapper">
+        <div class="ticker">🚨 Breaking News: Live Scanner Now Streaming! Stay Updated 🚨</div>
+    </div>
+
     <h2>🏆 Scanner Gamification System</h2>
+
+    <!-- Streaming Indicator -->
+    <p id="streamStatus">
+        🔴 Live Stream <span class="live-indicator">
+        <span class="dot">.</span> 
+        <span class="dot">.</span> 
+        <span class="dot">.</span>
+        </span>
+    </p>
 
     <!-- XP BAR -->
     <p>XP Progress</p>
@@ -90,17 +139,17 @@
         <div class="xp-bar" id="xpBar"></div>
     </div>
 
-    <!-- BADGE POPUP -->
+    <!-- Badge Popup -->
     <div class="badge-popup" id="badgePopup">🏅 New Badge Earned!</div>
 
-    <!-- DAILY CHALLENGE -->
-    <div class="challenge-box">
-        <p>🔥 Today's Challenge:</p>
+    <!-- Daily Challenge -->
+    <div class="leaderboard">
+        <h3>🔥 Today's Challenge:</h3>
         <p id="dailyChallenge">Loading...</p>
         <button onclick="completeChallenge()">✅ Complete</button>
     </div>
 
-    <!-- LEADERBOARD -->
+    <!-- Leaderboard -->
     <div class="leaderboard">
         <h3>🔥 Today's Top Listeners</h3>
         <ol id="leaderboardList">
@@ -110,81 +159,45 @@
         </ol>
     </div>
 
-    <!-- BADGE GALLERY -->
-    <h3>🏅 Earned Badges</h3>
-    <div id="badgeGallery"></div>
-
     <script>
         let xp = localStorage.getItem("xp") ? parseInt(localStorage.getItem("xp")) : 0;
-        let earnedBadges = localStorage.getItem("badges") ? JSON.parse(localStorage.getItem("badges")) : [];
         let dailyChallenge = localStorage.getItem("dailyChallenge") || null;
         let lastChallengeDate = localStorage.getItem("challengeDate") || null;
 
-        // Function to add XP
         function addXP(amount) {
             xp += amount;
             localStorage.setItem("xp", xp);
             document.getElementById("xpBar").style.width = (xp % 100) + "%";
         }
 
-        // Function to unlock a badge
         function unlockBadge(badgeName) {
-            if (!earnedBadges.includes(badgeName)) {
-                earnedBadges.push(badgeName);
-                localStorage.setItem("badges", JSON.stringify(earnedBadges));
+            let badgePopup = document.getElementById("badgePopup");
+            badgePopup.innerHTML = badgeName + " Unlocked!";
+            badgePopup.style.display = "block";
+            badgePopup.style.top = "20px";
 
-                let badgePopup = document.getElementById("badgePopup");
-                badgePopup.innerHTML = badgeName + " Unlocked!";
-                badgePopup.style.display = "block";
-                badgePopup.style.top = "20px";
-
-                setTimeout(() => {
-                    badgePopup.style.top = "-100px";
-                }, 3000);
-
-                // Add badge to gallery
-                let badgeGallery = document.getElementById("badgeGallery");
-                let newBadge = document.createElement("span");
-                newBadge.className = "badge";
-                newBadge.innerText = badgeName;
-                badgeGallery.appendChild(newBadge);
-            }
+            setTimeout(() => { badgePopup.style.top = "-100px"; }, 3000);
         }
 
-        // Function to handle daily challenges
         function setDailyChallenge() {
-            const challenges = [
-                { task: "Listen for 30 minutes", reward: 50 },
-                { task: "Tune in to a major incident", reward: 100 },
-                { task: "Listen for 3 days straight", reward: 150 }
-            ];
-
+            const challenges = ["Listen for 30 minutes", "Tune in to a major event", "Listen for 3 days straight"];
             let today = new Date().toISOString().split("T")[0];
 
             if (!dailyChallenge || lastChallengeDate !== today) {
-                let newChallenge = challenges[Math.floor(Math.random() * challenges.length)];
-                localStorage.setItem("dailyChallenge", JSON.stringify(newChallenge));
+                dailyChallenge = challenges[Math.floor(Math.random() * challenges.length)];
+                localStorage.setItem("dailyChallenge", dailyChallenge);
                 localStorage.setItem("challengeDate", today);
-                dailyChallenge = newChallenge;
             }
-
-            document.getElementById("dailyChallenge").innerText = dailyChallenge.task;
+            document.getElementById("dailyChallenge").innerText = dailyChallenge;
         }
 
         function completeChallenge() {
-            let challenge = JSON.parse(localStorage.getItem("dailyChallenge"));
-            addXP(challenge.reward);
+            addXP(50);
             unlockBadge("🔥 Daily Winner");
-            alert("Challenge Completed! You earned " + challenge.reward + " XP!");
+            alert("Challenge Completed! You earned 50 XP!");
         }
 
-        // Load stored badges
-        earnedBadges.forEach(badge => unlockBadge(badge));
-
-        // Set daily challenge
         setDailyChallenge();
-
-        // Simulate XP being earned every 5 seconds
         setInterval(() => addXP(10), 5000);
     </script>
 
