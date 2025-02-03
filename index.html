@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Missoula Police Scanner - Live</title>
+    <title>Missoula Scanner - Gamified</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <style>
         body {
@@ -12,173 +12,181 @@
             color: white;
             font-family: Arial, sans-serif;
             padding: 20px;
+            overflow: hidden;
         }
 
-        /* Streaming Status */
-        #streamStatus {
-            font-size: 18px;
-            margin-top: 10px;
+        /* XP BAR */
+        .xp-bar-container {
+            width: 80%;
+            background: rgba(255, 255, 255, 0.2);
+            height: 12px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px auto;
+        }
+
+        .xp-bar {
+            height: 100%;
+            width: 0%;
+            background: #FFD700;
+            transition: width 0.5s ease-in-out;
+        }
+
+        /* BADGE UNLOCK POPUP */
+        .badge-popup {
+            position: fixed;
+            top: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 255, 0, 0.9);
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: bold;
+            color: white;
+            display: none;
+            z-index: 10;
+            transition: top 0.5s ease-in-out;
+        }
+
+        /* LEADERBOARD */
+        .leaderboard {
+            margin-top: 20px;
             padding: 10px;
             background: rgba(255, 255, 255, 0.1);
-            display: inline-block;
             border-radius: 10px;
-            transition: all 0.3s ease;
-        }
-
-        /* Live Indicator with Animated Dots */
-        .live-indicator {
+            text-align: left;
             display: inline-block;
-            font-size: 18px;
-            color: #FFD700;
-        }
-
-        .dot {
-            animation: blink 1.5s infinite;
-            opacity: 0;
-        }
-
-        .dot:nth-child(1) { animation-delay: 0s; }
-        .dot:nth-child(2) { animation-delay: 0.5s; }
-        .dot:nth-child(3) { animation-delay: 1s; }
-
-        @keyframes blink {
-            0% { opacity: 0; }
-            50% { opacity: 1; }
-            100% { opacity: 0; }
-        }
-
-        /* Buttons */
-        button {
-            background: linear-gradient(145deg, #6A5ACD, #5b4ac4);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            font-size: 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            margin-top: 10px;
-            transition: all 0.2s ease-in-out;
-        }
-        button:hover {
-            transform: scale(1.05);
-            box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.2);
-        }
-
-        /* Volume Slider */
-        input[type="range"] {
             width: 80%;
-            margin-top: 10px;
         }
 
-        /* Waveform Animation */
-        canvas {
-            background: #10063B;
-            margin-top: 15px;
-            border-radius: 6px;
-            width: 100%;
-            max-width: 350px;
-            height: 80px;
+        /* Daily Challenge */
+        .challenge-box {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px auto;
+            width: 80%;
+            text-align: center;
+            font-weight: bold;
         }
 
-        /* Google Animated Icon */
-        .icon {
-            font-size: 50px;
-            color: #FFD700;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); opacity: 0.8; }
-            50% { transform: scale(1.2); opacity: 1; }
-            100% { transform: scale(1); opacity: 0.8; }
+        /* Badges */
+        .badge {
+            display: inline-block;
+            background: rgba(255, 215, 0, 0.3);
+            padding: 8px 15px;
+            border-radius: 10px;
+            margin: 5px;
         }
     </style>
 </head>
 <body>
-    <h2>🎧 Missoula Police Scanner - Live Stream</h2>
-    
-    <!-- Animated Google Icon -->
-    <span class="material-icons icon">graphic_eq</span>
 
-    <!-- Streaming Indicator -->
-    <p id="streamStatus">
-        🔴 Live Stream <span class="live-indicator">
-        <span class="dot">.</span> 
-        <span class="dot">.</span> 
-        <span class="dot">.</span>
-        </span>
-    </p>
+    <h2>🏆 Scanner Gamification System</h2>
 
-    <audio id="scannerPlayer" src="https://listen.broadcastify.com/82m7nxfkt4hw6vd.mp3" type="audio/mpeg"></audio>
+    <!-- XP BAR -->
+    <p>XP Progress</p>
+    <div class="xp-bar-container">
+        <div class="xp-bar" id="xpBar"></div>
+    </div>
 
-    <!-- Play/Pause Button -->
-    <button id="playPauseBtn">▶ Play</button>
+    <!-- BADGE POPUP -->
+    <div class="badge-popup" id="badgePopup">🏅 New Badge Earned!</div>
 
-    <!-- Volume Slider -->
-    <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="1">
+    <!-- DAILY CHALLENGE -->
+    <div class="challenge-box">
+        <p>🔥 Today's Challenge:</p>
+        <p id="dailyChallenge">Loading...</p>
+        <button onclick="completeChallenge()">✅ Complete</button>
+    </div>
 
-    <!-- Waveform Animation -->
-    <canvas id="visualizer"></canvas>
+    <!-- LEADERBOARD -->
+    <div class="leaderboard">
+        <h3>🔥 Today's Top Listeners</h3>
+        <ol id="leaderboardList">
+            <li>🔹 User1 - 3 hrs</li>
+            <li>🔹 User2 - 2.5 hrs</li>
+            <li>🔹 User3 - 2 hrs</li>
+        </ol>
+    </div>
+
+    <!-- BADGE GALLERY -->
+    <h3>🏅 Earned Badges</h3>
+    <div id="badgeGallery"></div>
 
     <script>
-        var audio = document.getElementById("scannerPlayer");
-        var btn = document.getElementById("playPauseBtn");
-        var statusText = document.getElementById("streamStatus");
-        var volumeSlider = document.getElementById("volumeSlider");
+        let xp = localStorage.getItem("xp") ? parseInt(localStorage.getItem("xp")) : 0;
+        let earnedBadges = localStorage.getItem("badges") ? JSON.parse(localStorage.getItem("badges")) : [];
+        let dailyChallenge = localStorage.getItem("dailyChallenge") || null;
+        let lastChallengeDate = localStorage.getItem("challengeDate") || null;
 
-        // Play/Pause Functionality
-        btn.addEventListener("click", function() {
-            if (audio.paused) {
-                audio.play();
-                btn.innerHTML = "⏸ Pause";
-                statusText.innerHTML = "🔴 Live Stream <span class='live-indicator'><span class='dot'>.</span> <span class='dot'>.</span> <span class='dot'>.</span></span>";
-            } else {
-                audio.pause();
-                btn.innerHTML = "▶ Play";
-                statusText.innerHTML = "Click to Listen";
-            }
-        });
+        // Function to add XP
+        function addXP(amount) {
+            xp += amount;
+            localStorage.setItem("xp", xp);
+            document.getElementById("xpBar").style.width = (xp % 100) + "%";
+        }
 
-        // Volume Control
-        volumeSlider.addEventListener("input", function() {
-            audio.volume = volumeSlider.value;
-        });
+        // Function to unlock a badge
+        function unlockBadge(badgeName) {
+            if (!earnedBadges.includes(badgeName)) {
+                earnedBadges.push(badgeName);
+                localStorage.setItem("badges", JSON.stringify(earnedBadges));
 
-        // Waveform Animation
-        var canvas = document.getElementById("visualizer");
-        var ctx = canvas.getContext("2d");
-        var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        var analyser = audioCtx.createAnalyser();
-        var source = audioCtx.createMediaElementSource(audio);
-        source.connect(analyser);
-        analyser.connect(audioCtx.destination);
-        analyser.fftSize = 256;
-        var bufferLength = analyser.frequencyBinCount;
-        var dataArray = new Uint8Array(bufferLength);
+                let badgePopup = document.getElementById("badgePopup");
+                badgePopup.innerHTML = badgeName + " Unlocked!";
+                badgePopup.style.display = "block";
+                badgePopup.style.top = "20px";
 
-        function drawWaveform() {
-            requestAnimationFrame(drawWaveform);
-            analyser.getByteFrequencyData(dataArray);
-            ctx.fillStyle = "#10063B";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            var barWidth = (canvas.width / bufferLength) * 2.5;
-            var barHeight;
-            var x = 0;
+                setTimeout(() => {
+                    badgePopup.style.top = "-100px";
+                }, 3000);
 
-            for (var i = 0; i < bufferLength; i++) {
-                barHeight = dataArray[i] / 2;
-                ctx.fillStyle = "#6A5ACD";
-                ctx.fillRect(x, canvas.height - barHeight / 2, barWidth, barHeight);
-                x += barWidth + 1;
+                // Add badge to gallery
+                let badgeGallery = document.getElementById("badgeGallery");
+                let newBadge = document.createElement("span");
+                newBadge.className = "badge";
+                newBadge.innerText = badgeName;
+                badgeGallery.appendChild(newBadge);
             }
         }
 
-        // Start animation only when audio is playing
-        audio.addEventListener("play", function() {
-            audioCtx.resume().then(() => {
-                drawWaveform();
-            });
-        });
+        // Function to handle daily challenges
+        function setDailyChallenge() {
+            const challenges = [
+                { task: "Listen for 30 minutes", reward: 50 },
+                { task: "Tune in to a major incident", reward: 100 },
+                { task: "Listen for 3 days straight", reward: 150 }
+            ];
+
+            let today = new Date().toISOString().split("T")[0];
+
+            if (!dailyChallenge || lastChallengeDate !== today) {
+                let newChallenge = challenges[Math.floor(Math.random() * challenges.length)];
+                localStorage.setItem("dailyChallenge", JSON.stringify(newChallenge));
+                localStorage.setItem("challengeDate", today);
+                dailyChallenge = newChallenge;
+            }
+
+            document.getElementById("dailyChallenge").innerText = dailyChallenge.task;
+        }
+
+        function completeChallenge() {
+            let challenge = JSON.parse(localStorage.getItem("dailyChallenge"));
+            addXP(challenge.reward);
+            unlockBadge("🔥 Daily Winner");
+            alert("Challenge Completed! You earned " + challenge.reward + " XP!");
+        }
+
+        // Load stored badges
+        earnedBadges.forEach(badge => unlockBadge(badge));
+
+        // Set daily challenge
+        setDailyChallenge();
+
+        // Simulate XP being earned every 5 seconds
+        setInterval(() => addXP(10), 5000);
     </script>
+
 </body>
 </html>
