@@ -34,7 +34,6 @@
     .dot {
       opacity: 1;
       display: inline-block;
-      /* No blinking animation initially */
     }
     
     /* Blinking animation */
@@ -47,14 +46,22 @@
       50%  { opacity: 0; }
       100% { opacity: 1; }
     }
+    
+    /* Start button styling */
+    #startButton {
+      padding: 10px 20px;
+      font-size: 1rem;
+      margin-top: 20px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
   <!-- Audio element with the new stream URL -->
   <audio id="stream" src="https://listen.broadcastify.com/82m7nxfkt4hw6vd.mp3"></audio>
   
-  <!-- A status indicator (optional) -->
-  <div id="status">Connecting...</div>
+  <!-- Status indicator -->
+  <div id="status">Click the button to start streaming</div>
   
   <!-- Dots that will blink once the stream is playing -->
   <div id="dots">
@@ -62,19 +69,26 @@
     <span class="dot">.</span>
     <span class="dot">.</span>
   </div>
+  
+  <!-- Button to start the audio stream -->
+  <button id="startButton">Start Stream</button>
 
   <script>
     const audio = document.getElementById('stream');
     const dots = document.querySelectorAll('.dot');
     const status = document.getElementById('status');
+    const startButton = document.getElementById('startButton');
 
-    // Start playing the audio stream.
-    // (Note: Some browsers require a user interaction to start audio.)
-    audio.play().catch(err => {
-      console.error('Playback error:', err);
-      status.textContent = 'Playback failed. Click to try again.';
-      // Optionally, you can add a click handler to retry.
-      document.body.addEventListener('click', () => audio.play());
+    // Start playback when the user clicks the button.
+    startButton.addEventListener('click', () => {
+      audio.play().then(() => {
+        // Hide the start button once playback starts.
+        startButton.style.display = 'none';
+        status.textContent = 'Connecting...';
+      }).catch(err => {
+        console.error('Playback error:', err);
+        status.textContent = 'Playback failed. Please try again.';
+      });
     });
     
     // When the stream actually starts playing, add the blinking effect.
@@ -83,13 +97,13 @@
       status.textContent = 'Streaming...';
     });
     
-    // Optionally, if the stream stops, remove the blinking.
+    // Optionally, if the stream pauses, remove the blinking.
     audio.addEventListener('pause', () => {
       dots.forEach(dot => dot.classList.remove('blink'));
       status.textContent = 'Paused';
     });
     
-    // Handle errors (if needed)
+    // Handle any audio errors.
     audio.addEventListener('error', (e) => {
       console.error('Audio error:', e);
       status.textContent = 'Error connecting to stream.';
