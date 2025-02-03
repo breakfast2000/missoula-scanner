@@ -1,188 +1,248 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Missoula Scanner - Gamified</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <style>
-        /* Glassmorphism UI */
-        body {
-            background: rgba(25, 2, 80, 0.9);
-            text-align: center;
-            color: white;
-            font-family: Arial, sans-serif;
-            padding: 20px;
-            backdrop-filter: blur(10px);
-            overflow: hidden;
-        }
-
-        /* Streaming Indicator */
-        #streamStatus {
-            font-size: 18px;
-            margin-top: 10px;
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.1);
-            display: inline-block;
-            border-radius: 10px;
-            transition: all 0.3s ease;
-        }
-
-        .live-indicator {
-            font-size: 18px;
-            color: #FFD700;
-        }
-
-        .dot {
-            animation: blink 1.5s infinite;
-            opacity: 0;
-        }
-
-        .dot:nth-child(1) { animation-delay: 0s; }
-        .dot:nth-child(2) { animation-delay: 0.5s; }
-        .dot:nth-child(3) { animation-delay: 1s; }
-
-        @keyframes blink {
-            0% { opacity: 0; }
-            50% { opacity: 1; }
-            100% { opacity: 0; }
-        }
-
-        /* XP Bar */
-        .xp-bar-container {
-            width: 80%;
-            background: rgba(255, 255, 255, 0.2);
-            height: 12px;
-            border-radius: 10px;
-            overflow: hidden;
-            margin: 20px auto;
-        }
-
-        .xp-bar {
-            height: 100%;
-            width: 0%;
-            background: #FFD700;
-            transition: width 0.5s ease-in-out;
-        }
-
-        /* Badge Unlock Popup */
-        .badge-popup {
-            position: fixed;
-            top: -100px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 255, 0, 0.9);
-            padding: 10px 20px;
-            border-radius: 10px;
-            font-weight: bold;
-            color: white;
-            display: none;
-            z-index: 10;
-            transition: top 0.5s ease-in-out;
-        }
-
-        /* Leaderboard */
-        .leaderboard {
-            margin-top: 20px;
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            text-align: left;
-            display: inline-block;
-            width: 80%;
-        }
-
-        /* Scrolling Ticker */
-        .ticker-wrapper {
-            width: 100%;
-            overflow: hidden;
-            background: rgba(0, 0, 0, 0.3);
-            padding: 8px 0;
-        }
-
-        .ticker {
-            display: inline-block;
-            white-space: nowrap;
-            animation: scrollTicker 12s linear infinite;
-            font-size: 16px;
-            font-weight: bold;
-            color: #FFD700;
-        }
-
-        @keyframes scrollTicker {
-            from { transform: translateX(100%); }
-            to { transform: translateX(-100%); }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Missoula Scanner - Gamified</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <style>
+      /* Base & Glassmorphism UI */
+      body {
+         background: rgba(25, 2, 80, 0.9);
+         text-align: center;
+         color: white;
+         font-family: Arial, sans-serif;
+         padding: 20px;
+         backdrop-filter: blur(10px);
+         overflow-x: hidden;
+      }
+      /* Streaming Indicator */
+      #streamStatus {
+          font-size: 18px;
+          margin-top: 10px;
+          padding: 10px;
+          background: rgba(255, 255, 255, 0.1);
+          display: inline-block;
+          border-radius: 10px;
+          transition: all 0.3s ease;
+      }
+      .live-indicator {
+          font-size: 18px;
+          color: #FFD700;
+      }
+      .dot {
+          animation: blink 1.5s infinite;
+          opacity: 0;
+      }
+      .dot:nth-child(1) { animation-delay: 0s; }
+      .dot:nth-child(2) { animation-delay: 0.5s; }
+      .dot:nth-child(3) { animation-delay: 1s; }
+      @keyframes blink {
+          0% { opacity: 0; }
+          50% { opacity: 1; }
+          100% { opacity: 0; }
+      }
+      /* XP Bar */
+      .xp-bar-container {
+          width: 80%;
+          background: rgba(255, 255, 255, 0.2);
+          height: 12px;
+          border-radius: 10px;
+          overflow: hidden;
+          margin: 20px auto;
+      }
+      .xp-bar {
+          height: 100%;
+          width: 0%;
+          background: #FFD700;
+          transition: width 0.5s ease-in-out;
+      }
+      /* Badge Unlock Popup */
+      .badge-popup {
+          position: fixed;
+          top: -100px;
+          left: 50%;
+          transform: translateX(-50%);
+          background: rgba(0, 255, 0, 0.9);
+          padding: 10px 20px;
+          border-radius: 10px;
+          font-weight: bold;
+          color: white;
+          display: none;
+          z-index: 10;
+          transition: top 0.5s ease-in-out;
+      }
+      /* Leaderboard */
+      .leaderboard {
+          margin-top: 20px;
+          padding: 10px;
+          background: rgba(255, 255, 255, 0.1);
+          border-radius: 10px;
+          text-align: left;
+          display: inline-block;
+          width: 80%;
+      }
+      /* Scrolling Ticker */
+      .ticker-wrapper {
+          width: 100%;
+          overflow: hidden;
+          background: rgba(0, 0, 0, 0.3);
+          padding: 8px 0;
+      }
+      .ticker {
+          display: inline-block;
+          white-space: nowrap;
+          animation: scrollTicker 12s linear infinite;
+          font-size: 16px;
+          font-weight: bold;
+          color: #FFD700;
+      }
+      @keyframes scrollTicker {
+          from { transform: translateX(100%); }
+          to { transform: translateX(-100%); }
+      }
+      /* Floating Points Animation */
+      .point-animation {
+          position: absolute;
+          animation: floatUp 2s ease-out forwards;
+          font-size: 20px;
+          pointer-events: none;
+      }
+      @keyframes floatUp {
+          0% { opacity: 1; transform: translateY(0); }
+          100% { opacity: 0; transform: translateY(-50px); }
+      }
+      /* Login Modal */
+      #loginContainer {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0, 0, 0, 0.8);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          flex-direction: column;
+          z-index: 100;
+      }
+      #loginContainer input {
+          padding: 10px;
+          font-size: 16px;
+          border: none;
+          border-radius: 5px;
+          margin-bottom: 10px;
+      }
+      #loginContainer button {
+          padding: 10px 20px;
+          font-size: 16px;
+          border: none;
+          border-radius: 5px;
+          background: #FFD700;
+          color: black;
+          cursor: pointer;
+      }
+      /* Audio Player */
+      #streamPlayer {
+          margin: 20px auto;
+          width: 80%;
+          outline: none;
+      }
+  </style>
 </head>
 <body>
 
-    <!-- Ticker Feed -->
-    <div class="ticker-wrapper">
-        <div class="ticker">🚨 Breaking News: Live Scanner Now Streaming! Stay Updated 🚨</div>
+    <!-- Login Modal (User Account Setup) -->
+    <div id="loginContainer">
+         <h2>Welcome to Missoula Scanner</h2>
+         <input type="text" id="usernameInput" placeholder="Enter your username">
+         <button onclick="setUsername()">Start Listening</button>
     </div>
 
-    <h2>🏆 Scanner Gamification System</h2>
+    <!-- Main Content -->
+    <div id="mainContent" style="display:none;">
+        <!-- Ticker Feed -->
+        <div class="ticker-wrapper">
+            <div class="ticker">🚨 Breaking News: Live Scanner Now Streaming! Stay Updated 🚨</div>
+        </div>
 
-    <!-- Streaming Indicator -->
-    <p id="streamStatus">
-        🔴 Live Stream <span class="live-indicator">
-        <span class="dot">.</span> 
-        <span class="dot">.</span> 
-        <span class="dot">.</span>
-        </span>
-    </p>
+        <h2>🏆 Scanner Gamification System</h2>
 
-    <!-- XP BAR -->
-    <p>XP Progress</p>
-    <div class="xp-bar-container">
-        <div class="xp-bar" id="xpBar"></div>
-    </div>
+        <!-- Audio Streaming Player -->
+        <audio id="streamPlayer" src="https://listen.broadcastify.com/82m7nxfkt4hw6vd.mp3" controls></audio>
 
-    <!-- Badge Popup -->
-    <div class="badge-popup" id="badgePopup">🏅 New Badge Earned!</div>
+        <!-- Streaming Indicator -->
+        <p id="streamStatus">
+            🔴 Live Stream <span class="live-indicator">
+            <span class="dot">.</span> 
+            <span class="dot">.</span> 
+            <span class="dot">.</span>
+            </span>
+        </p>
 
-    <!-- Daily Challenge -->
-    <div class="leaderboard">
-        <h3>🔥 Today's Challenge:</h3>
-        <p id="dailyChallenge">Loading...</p>
-        <button onclick="completeChallenge()">✅ Complete</button>
-    </div>
+        <!-- XP BAR -->
+        <p>XP Progress</p>
+        <div class="xp-bar-container">
+            <div class="xp-bar" id="xpBar"></div>
+        </div>
 
-    <!-- Leaderboard -->
-    <div class="leaderboard">
-        <h3>🔥 Today's Top Listeners</h3>
-        <ol id="leaderboardList">
-            <li>🔹 User1 - 3 hrs</li>
-            <li>🔹 User2 - 2.5 hrs</li>
-            <li>🔹 User3 - 2 hrs</li>
-        </ol>
+        <!-- Badge Popup -->
+        <div class="badge-popup" id="badgePopup">🏅 New Badge Earned!</div>
+
+        <!-- Daily Challenge -->
+        <div class="leaderboard">
+            <h3>🔥 Today's Challenge:</h3>
+            <p id="dailyChallenge">Loading...</p>
+            <button onclick="completeChallenge()">✅ Complete Challenge</button>
+        </div>
+
+        <!-- Global Leaderboard -->
+        <div class="leaderboard">
+            <h3>🌐 Global Leaderboard</h3>
+            <ol id="leaderboardList">
+                <!-- Leaderboard entries will be rendered here -->
+            </ol>
+        </div>
+
+        <!-- Points Animation Container -->
+        <div id="pointAnimationContainer" style="position: relative; height: 0;"></div>
+
+        <!-- Future Monetization Placeholder -->
+        <div style="margin-top:20px;">
+            <button onclick="upgradeAccount()" style="padding:10px 20px; font-size:16px; border:none; border-radius:5px; background:#FFD700; color:black; cursor:pointer;">Upgrade for XP Boosts</button>
+        </div>
     </div>
 
     <script>
+    (function(){
+        // Retrieve or initialize user data from localStorage
+        let username = localStorage.getItem("username") || null;
         let xp = localStorage.getItem("xp") ? parseInt(localStorage.getItem("xp")) : 0;
+        let listeningTime = 0;
+        let timerInterval = null;
+        const xpToNextLevel = 100; // used to compute the XP bar fill
+
+        // Tiered thresholds (in seconds) & points awarded (each only once per session)
+        const thresholds = [
+            { seconds: 60, points: 10, awarded: false },
+            { seconds: 300, points: 25, awarded: false },
+            { seconds: 900, points: 50, awarded: false },
+            { seconds: 1800, points: 100, awarded: false },
+            { seconds: 3600, points: 250, awarded: false },
+            // Add more milestones as needed…
+        ];
+
+        // Daily Challenge Setup (resets each day)
         let dailyChallenge = localStorage.getItem("dailyChallenge") || null;
         let lastChallengeDate = localStorage.getItem("challengeDate") || null;
-
-        function addXP(amount) {
-            xp += amount;
-            localStorage.setItem("xp", xp);
-            document.getElementById("xpBar").style.width = (xp % 100) + "%";
-        }
-
-        function unlockBadge(badgeName) {
-            let badgePopup = document.getElementById("badgePopup");
-            badgePopup.innerHTML = badgeName + " Unlocked!";
-            badgePopup.style.display = "block";
-            badgePopup.style.top = "20px";
-
-            setTimeout(() => { badgePopup.style.top = "-100px"; }, 3000);
-        }
-
         function setDailyChallenge() {
-            const challenges = ["Listen for 30 minutes", "Tune in to a major event", "Listen for 3 days straight"];
-            let today = new Date().toISOString().split("T")[0];
-
+            const challenges = [
+                "Listen for 30 minutes straight",
+                "Tune in during peak hours",
+                "Stay online for 3 consecutive days",
+                "Reach a 1-hour listening milestone"
+            ];
+            const today = new Date().toISOString().split("T")[0];
             if (!dailyChallenge || lastChallengeDate !== today) {
                 dailyChallenge = challenges[Math.floor(Math.random() * challenges.length)];
                 localStorage.setItem("dailyChallenge", dailyChallenge);
@@ -190,15 +250,149 @@
             }
             document.getElementById("dailyChallenge").innerText = dailyChallenge;
         }
+        setDailyChallenge();
 
-        function completeChallenge() {
-            addXP(50);
-            unlockBadge("🔥 Daily Winner");
-            alert("Challenge Completed! You earned 50 XP!");
+        // --- User Login / Setup ---
+        window.setUsername = function() {
+            const input = document.getElementById("usernameInput");
+            if (input.value.trim() !== "") {
+                username = input.value.trim();
+                localStorage.setItem("username", username);
+                document.getElementById("loginContainer").style.display = "none";
+                document.getElementById("mainContent").style.display = "block";
+                updateXPBar();
+                updateGlobalLeaderboard();
+            } else {
+                alert("Please enter a valid username.");
+            }
+        };
+
+        // --- XP Management ---
+        window.addXP = function(amount) {
+            xp += amount;
+            localStorage.setItem("xp", xp);
+            updateXPBar();
+            updateGlobalLeaderboard();
+        };
+        function updateXPBar() {
+            const percentage = (xp % xpToNextLevel) / xpToNextLevel * 100;
+            document.getElementById("xpBar").style.width = percentage + "%";
         }
 
-        setDailyChallenge();
-        setInterval(() => addXP(10), 5000);
+        // --- Badge & Achievement Animations ---
+        window.unlockBadge = function(badgeName) {
+            const badgePopup = document.getElementById("badgePopup");
+            badgePopup.innerHTML = "🏅 " + badgeName + " Unlocked!";
+            badgePopup.style.display = "block";
+            badgePopup.style.top = "20px";
+            setTimeout(() => {
+                badgePopup.style.top = "-100px";
+                setTimeout(() => { badgePopup.style.display = "none"; }, 500);
+            }, 3000);
+        };
+
+        // Daily Challenge Completion
+        window.completeChallenge = function() {
+            addXP(50);
+            unlockBadge("Daily Challenge Master");
+            alert("Challenge Completed! You earned 50 XP!");
+            // (Optional: Reset challenge status for the day.)
+        };
+
+        // --- Tiered Listening Timer ---
+        function startListeningTimer() {
+            if(timerInterval) return;
+            timerInterval = setInterval(() => {
+                listeningTime++;
+                checkThresholds();
+                // (Optional: update a “listening time” display on-screen)
+            }, 1000);
+        }
+        function stopListeningTimer() {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
+        function checkThresholds() {
+            thresholds.forEach(threshold => {
+                if (!threshold.awarded && listeningTime >= threshold.seconds) {
+                    threshold.awarded = true;
+                    addXP(threshold.points);
+                    showPointAwardAnimation("+" + threshold.points + " XP");
+                    // For example: unlock a special badge at 1 hour
+                    if(threshold.seconds === 3600) {
+                        unlockBadge("1 Hour Listener");
+                    }
+                }
+            });
+        }
+
+        // --- Floating Points Animation ---
+        function showPointAwardAnimation(text) {
+            const container = document.getElementById("pointAnimationContainer");
+            const span = document.createElement("span");
+            span.className = "point-animation";
+            span.style.left = Math.random() * 80 + "%";
+            span.style.top = "50%";
+            span.innerText = text;
+            container.appendChild(span);
+            setTimeout(() => {
+                container.removeChild(span);
+            }, 2000);
+        }
+
+        // --- Global Leaderboard (Simulated with localStorage) ---
+        function updateGlobalLeaderboard() {
+            let leaderboard = JSON.parse(localStorage.getItem("globalLeaderboard") || "[]");
+            // Update or add the current user
+            let userEntry = leaderboard.find(entry => entry.username === username);
+            if (!userEntry) {
+                userEntry = { username: username, xp: xp };
+                leaderboard.push(userEntry);
+            } else {
+                userEntry.xp = xp;
+            }
+            // Sort descending by XP
+            leaderboard.sort((a, b) => b.xp - a.xp);
+            localStorage.setItem("globalLeaderboard", JSON.stringify(leaderboard));
+            renderLeaderboard(leaderboard);
+        }
+        function renderLeaderboard(leaderboard) {
+            const listEl = document.getElementById("leaderboardList");
+            listEl.innerHTML = "";
+            leaderboard.forEach(entry => {
+                const li = document.createElement("li");
+                li.textContent = entry.username + " - " + entry.xp + " XP";
+                listEl.appendChild(li);
+            });
+        }
+
+        // --- Audio Player & Timer Integration ---
+        const streamPlayer = document.getElementById("streamPlayer");
+        streamPlayer.addEventListener("play", () => {
+            document.getElementById("streamStatus").innerHTML = '🔴 Live Stream <span class="live-indicator"><span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></span>';
+            startListeningTimer();
+        });
+        streamPlayer.addEventListener("pause", () => {
+            document.getElementById("streamStatus").innerHTML = '⏸️ Stream Paused';
+            stopListeningTimer();
+        });
+        streamPlayer.addEventListener("ended", () => {
+            stopListeningTimer();
+        });
+
+        // --- Future Monetization Placeholder ---
+        window.upgradeAccount = function() {
+            alert("Upgrade feature coming soon! Stay tuned for XP Boosts and more.");
+        };
+
+        // If a username already exists, skip login
+        if(username) {
+            document.getElementById("loginContainer").style.display = "none";
+            document.getElementById("mainContent").style.display = "block";
+            updateXPBar();
+            updateGlobalLeaderboard();
+        }
+    })();
     </script>
 
 </body>
