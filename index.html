@@ -6,394 +6,497 @@
   <title>Missoula Scanner - Gamified</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   <style>
-      /* Base & Glassmorphism UI */
-      body {
-         background: rgba(25, 2, 80, 0.9);
-         text-align: center;
-         color: white;
-         font-family: Arial, sans-serif;
-         padding: 20px;
-         backdrop-filter: blur(10px);
-         overflow-x: hidden;
-      }
-      /* Streaming Indicator */
-      #streamStatus {
-          font-size: 18px;
-          margin-top: 10px;
-          padding: 10px;
-          background: rgba(255, 255, 255, 0.1);
-          display: inline-block;
-          border-radius: 10px;
-          transition: all 0.3s ease;
-      }
-      .live-indicator {
-          font-size: 18px;
-          color: #FFD700;
-      }
-      .dot {
-          animation: blink 1.5s infinite;
-          opacity: 0;
-      }
-      .dot:nth-child(1) { animation-delay: 0s; }
-      .dot:nth-child(2) { animation-delay: 0.5s; }
-      .dot:nth-child(3) { animation-delay: 1s; }
-      @keyframes blink {
-          0% { opacity: 0; }
-          50% { opacity: 1; }
-          100% { opacity: 0; }
-      }
-      /* XP Bar */
-      .xp-bar-container {
-          width: 80%;
-          background: rgba(255, 255, 255, 0.2);
-          height: 12px;
-          border-radius: 10px;
-          overflow: hidden;
-          margin: 20px auto;
-      }
-      .xp-bar {
-          height: 100%;
-          width: 0%;
-          background: #FFD700;
-          transition: width 0.5s ease-in-out;
-      }
-      /* Badge Unlock Popup */
-      .badge-popup {
-          position: fixed;
-          top: -100px;
-          left: 50%;
-          transform: translateX(-50%);
-          background: rgba(0, 255, 0, 0.9);
-          padding: 10px 20px;
-          border-radius: 10px;
-          font-weight: bold;
-          color: white;
-          display: none;
-          z-index: 10;
-          transition: top 0.5s ease-in-out;
-      }
-      /* Leaderboard */
-      .leaderboard {
-          margin-top: 20px;
-          padding: 10px;
-          background: rgba(255, 255, 255, 0.1);
-          border-radius: 10px;
-          text-align: left;
-          display: inline-block;
-          width: 80%;
-      }
-      /* Scrolling Ticker */
-      .ticker-wrapper {
-          width: 100%;
-          overflow: hidden;
-          background: rgba(0, 0, 0, 0.3);
-          padding: 8px 0;
-      }
-      .ticker {
-          display: inline-block;
-          white-space: nowrap;
-          animation: scrollTicker 12s linear infinite;
-          font-size: 16px;
-          font-weight: bold;
-          color: #FFD700;
-      }
-      @keyframes scrollTicker {
-          from { transform: translateX(100%); }
-          to { transform: translateX(-100%); }
-      }
-      /* Floating Points Animation */
-      .point-animation {
-          position: absolute;
-          animation: floatUp 2s ease-out forwards;
-          font-size: 20px;
-          pointer-events: none;
-      }
-      @keyframes floatUp {
-          0% { opacity: 1; transform: translateY(0); }
-          100% { opacity: 0; transform: translateY(-50px); }
-      }
-      /* Login Modal */
-      #loginContainer {
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background: rgba(0, 0, 0, 0.8);
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          flex-direction: column;
-          z-index: 100;
-      }
-      #loginContainer input {
-          padding: 10px;
-          font-size: 16px;
-          border: none;
-          border-radius: 5px;
-          margin-bottom: 10px;
-      }
-      #loginContainer button {
-          padding: 10px 20px;
-          font-size: 16px;
-          border: none;
-          border-radius: 5px;
-          background: #FFD700;
-          color: black;
-          cursor: pointer;
-      }
-      /* Audio Player */
-      #streamPlayer {
-          margin: 20px auto;
-          width: 80%;
-          outline: none;
-      }
+    /* Base & Glassmorphism UI */
+    body {
+      background: rgba(25, 2, 80, 0.9);
+      text-align: center;
+      color: white;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      backdrop-filter: blur(10px);
+      overflow-x: hidden;
+    }
+    /* Streaming Indicator */
+    #streamStatus {
+      font-size: 18px;
+      margin-top: 10px;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      display: inline-block;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+    }
+    .live-indicator {
+      font-size: 18px;
+      color: #FFD700;
+    }
+    .dot {
+      animation: blink 1.5s infinite;
+      opacity: 0;
+    }
+    .dot:nth-child(1) { animation-delay: 0s; }
+    .dot:nth-child(2) { animation-delay: 0.5s; }
+    .dot:nth-child(3) { animation-delay: 1s; }
+    @keyframes blink {
+      0% { opacity: 0; }
+      50% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+    /* XP Bar */
+    .xp-bar-container {
+      width: 80%;
+      background: rgba(255, 255, 255, 0.2);
+      height: 20px;
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 10px auto;
+      position: relative;
+    }
+    .xp-bar {
+      height: 100%;
+      width: 0%;
+      background: #FFD700;
+      transition: width 0.5s ease-in-out;
+    }
+    #xpLabel {
+      margin-top: 5px;
+    }
+    /* Badge Unlock Popup */
+    .badge-popup {
+      position: fixed;
+      top: -100px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 255, 0, 0.9);
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-weight: bold;
+      color: white;
+      display: none;
+      z-index: 10;
+      transition: top 0.5s ease-in-out;
+    }
+    /* Leaderboard */
+    .leaderboard {
+      margin-top: 20px;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      text-align: left;
+      display: inline-block;
+      width: 80%;
+    }
+    /* Scrolling Ticker */
+    .ticker-wrapper {
+      width: 100%;
+      overflow: hidden;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 8px 0;
+    }
+    .ticker {
+      display: inline-block;
+      white-space: nowrap;
+      animation: scrollTicker 12s linear infinite;
+      font-size: 16px;
+      font-weight: bold;
+      color: #FFD700;
+    }
+    @keyframes scrollTicker {
+      from { transform: translateX(100%); }
+      to { transform: translateX(-100%); }
+    }
+    /* Floating Points Animation */
+    .point-animation {
+      position: absolute;
+      animation: floatUp 2s ease-out forwards;
+      font-size: 20px;
+      pointer-events: none;
+    }
+    @keyframes floatUp {
+      0% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(-50px); }
+    }
+    /* Login Modal */
+    #loginContainer {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      z-index: 100;
+    }
+    #loginContainer input {
+      padding: 10px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      margin-bottom: 10px;
+    }
+    #loginContainer button {
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      background: #FFD700;
+      color: black;
+      cursor: pointer;
+    }
+    /* Audio Player */
+    #streamPlayer {
+      margin: 20px auto;
+      width: 80%;
+      outline: none;
+    }
+    /* Challenge List */
+    .challenge-list {
+      max-height: 300px;
+      overflow-y: auto;
+      margin: 20px auto;
+      width: 80%;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 10px;
+      text-align: left;
+    }
+    .challenge-entry {
+      background: rgba(255, 255, 255, 0.2);
+      margin-bottom: 10px;
+      padding: 10px;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background 0.3s;
+    }
+    .challenge-entry.active {
+      background: rgba(255, 255, 255, 0.3);
+    }
+    .challenge-entry.completed {
+      background: rgba(0, 255, 0, 0.3);
+    }
+    .challenge-entry button {
+      padding: 5px 10px;
+      border: none;
+      border-radius: 5px;
+      background: #FFD700;
+      color: black;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
 
-    <!-- Login Modal (User Account Setup) -->
-    <div id="loginContainer">
-         <h2>Welcome to Missoula Scanner</h2>
-         <input type="text" id="usernameInput" placeholder="Enter your username">
-         <button onclick="setUsername()">Start Listening</button>
+  <!-- Login Modal (User Account Setup) -->
+  <div id="loginContainer">
+    <h2>Welcome to Missoula Scanner</h2>
+    <input type="text" id="usernameInput" placeholder="Enter your username">
+    <button onclick="setUsername()">Start Listening</button>
+  </div>
+
+  <!-- Main Content -->
+  <div id="mainContent" style="display:none;">
+    <!-- Ticker Feed -->
+    <div class="ticker-wrapper">
+      <div class="ticker">🚨 Breaking News: Live Scanner Now Streaming! Stay Updated 🚨</div>
     </div>
 
-    <!-- Main Content -->
-    <div id="mainContent" style="display:none;">
-        <!-- Ticker Feed -->
-        <div class="ticker-wrapper">
-            <div class="ticker">🚨 Breaking News: Live Scanner Now Streaming! Stay Updated 🚨</div>
-        </div>
+    <h2>🏆 Scanner Gamification System</h2>
 
-        <h2>🏆 Scanner Gamification System</h2>
+    <!-- Audio Streaming Player -->
+    <audio id="streamPlayer" src="YOUR_STREAM_URL_HERE" controls></audio>
 
-        <!-- Audio Streaming Player -->
-        <audio id="streamPlayer" src="https://listen.broadcastify.com/82m7nxfkt4hw6vd.mp3" controls></audio>
+    <!-- Streaming Indicator -->
+    <p id="streamStatus">
+      🔴 Live Stream <span class="live-indicator">
+      <span class="dot">.</span> 
+      <span class="dot">.</span> 
+      <span class="dot">.</span>
+      </span>
+    </p>
 
-        <!-- Streaming Indicator -->
-        <p id="streamStatus">
-            🔴 Live Stream <span class="live-indicator">
-            <span class="dot">.</span> 
-            <span class="dot">.</span> 
-            <span class="dot">.</span>
-            </span>
-        </p>
-
-        <!-- XP BAR -->
-        <p>XP Progress</p>
-        <div class="xp-bar-container">
-            <div class="xp-bar" id="xpBar"></div>
-        </div>
-
-        <!-- Badge Popup -->
-        <div class="badge-popup" id="badgePopup">🏅 New Badge Earned!</div>
-
-        <!-- Daily Challenge -->
-        <div class="leaderboard">
-            <h3>🔥 Today's Challenge:</h3>
-            <p id="dailyChallenge">Loading...</p>
-            <button onclick="completeChallenge()">✅ Complete Challenge</button>
-        </div>
-
-        <!-- Global Leaderboard -->
-        <div class="leaderboard">
-            <h3>🌐 Global Leaderboard</h3>
-            <ol id="leaderboardList">
-                <!-- Leaderboard entries will be rendered here -->
-            </ol>
-        </div>
-
-        <!-- Points Animation Container -->
-        <div id="pointAnimationContainer" style="position: relative; height: 0;"></div>
-
-        <!-- Future Monetization Placeholder -->
-        <div style="margin-top:20px;">
-            <button onclick="upgradeAccount()" style="padding:10px 20px; font-size:16px; border:none; border-radius:5px; background:#FFD700; color:black; cursor:pointer;">Upgrade for XP Boosts</button>
-        </div>
+    <!-- XP Progress -->
+    <div id="xpLabel">XP: 0</div>
+    <div class="xp-bar-container">
+      <div class="xp-bar" id="xpBar"></div>
     </div>
 
-    <script>
-    (function(){
-        // Retrieve or initialize user data from localStorage
-        let username = localStorage.getItem("username") || null;
-        let xp = localStorage.getItem("xp") ? parseInt(localStorage.getItem("xp")) : 0;
-        let listeningTime = 0;
-        let timerInterval = null;
-        const xpToNextLevel = 100; // used to compute the XP bar fill
+    <!-- Challenge List -->
+    <h3>Today's Challenges</h3>
+    <div class="challenge-list" id="challengeList">
+      <!-- Challenges will be dynamically populated here -->
+    </div>
 
-        // Tiered thresholds (in seconds) & points awarded (each only once per session)
-        const thresholds = [
-            { seconds: 60, points: 10, awarded: false },
-            { seconds: 300, points: 25, awarded: false },
-            { seconds: 900, points: 50, awarded: false },
-            { seconds: 1800, points: 100, awarded: false },
-            { seconds: 3600, points: 250, awarded: false },
-            // Add more milestones as needed…
-        ];
+    <!-- Global Leaderboard -->
+    <div class="leaderboard">
+      <h3>🌐 Global Leaderboard</h3>
+      <ol id="leaderboardList">
+        <!-- Leaderboard entries will be rendered here -->
+      </ol>
+    </div>
 
-        // Daily Challenge Setup (resets each day)
-        let dailyChallenge = localStorage.getItem("dailyChallenge") || null;
-        let lastChallengeDate = localStorage.getItem("challengeDate") || null;
-        function setDailyChallenge() {
-            const challenges = [
-                "Listen for 30 minutes straight",
-                "Tune in during peak hours",
-                "Stay online for 3 consecutive days",
-                "Reach a 1-hour listening milestone"
-            ];
-            const today = new Date().toISOString().split("T")[0];
-            if (!dailyChallenge || lastChallengeDate !== today) {
-                dailyChallenge = challenges[Math.floor(Math.random() * challenges.length)];
-                localStorage.setItem("dailyChallenge", dailyChallenge);
-                localStorage.setItem("challengeDate", today);
-            }
-            document.getElementById("dailyChallenge").innerText = dailyChallenge;
+    <!-- Points Animation Container -->
+    <div id="pointAnimationContainer" style="position: relative; height: 0;"></div>
+
+    <!-- Future Monetization Placeholder -->
+    <div style="margin-top:20px;">
+      <button onclick="upgradeAccount()" style="padding:10px 20px; font-size:16px; border:none; border-radius:5px; background:#FFD700; color:black; cursor:pointer;">Upgrade for XP Boosts</button>
+    </div>
+  </div>
+
+  <div class="badge-popup" id="badgePopup">🏅 New Badge Earned!</div>
+
+  <script>
+    // Global variables
+    let username = null;
+    let xp = localStorage.getItem("xp") ? parseInt(localStorage.getItem("xp")) : 0;
+    let streamIsPlaying = false;
+    let challenges = [];
+    const defaultChallenges = [
+      { id: 1, title: "Log In", duration: 0, points: 20, status: "pending", remaining: 0 },
+      { id: 2, title: "Listen for 5 Minutes", duration: 300, points: 50, status: "pending", remaining: 300 },
+      { id: 3, title: "Listen for 15 Minutes", duration: 900, points: 125, status: "pending", remaining: 900 },
+      { id: 4, title: "Listen for 30 Minutes", duration: 1800, points: 312, status: "pending", remaining: 1800 },
+      { id: 5, title: "Listen for 1 Hour", duration: 3600, points: 780, status: "pending", remaining: 3600 }
+      // Add more challenges as needed up to level 100
+    ];
+
+    function saveChallenges() {
+      localStorage.setItem("challenges", JSON.stringify(challenges));
+    }
+
+    function loadChallenges() {
+      const stored = localStorage.getItem("challenges");
+      return stored ? JSON.parse(stored) : null;
+    }
+
+    // XP and Level System
+    function getLevel(xp) {
+      // Simple leveling: each level requires 100 XP
+      return Math.floor(xp / 100) + 1;
+    }
+
+    function updateXPBar() {
+      let level = getLevel(xp);
+      let currentLevelBase = (level - 1) * 100;
+      let currentXP = xp - currentLevelBase;
+      let percentage = (currentXP / 100) * 100;
+      document.getElementById("xpBar").style.width = percentage + "%";
+      document.getElementById("xpLabel").innerText = "Level " + level + " - XP: " + currentXP + " / 100 (Total: " + xp + ")";
+    }
+
+    function addXP(amount) {
+      xp += amount;
+      localStorage.setItem("xp", xp);
+      updateXPBar();
+      updateGlobalLeaderboard();
+      showPointAwardAnimation("+" + amount + " XP");
+    }
+
+    function unlockBadge(badgeName) {
+      const badgePopup = document.getElementById("badgePopup");
+      badgePopup.innerHTML = "🏅 " + badgeName + " Unlocked!";
+      badgePopup.style.display = "block";
+      badgePopup.style.top = "20px";
+      setTimeout(() => {
+        badgePopup.style.top = "-100px";
+        setTimeout(() => { badgePopup.style.display = "none"; }, 500);
+      }, 3000);
+    }
+
+    // Global Leaderboard (Simulated with localStorage)
+    function updateGlobalLeaderboard() {
+      let leaderboard = JSON.parse(localStorage.getItem("globalLeaderboard") || "[]");
+      let userEntry = leaderboard.find(entry => entry.username === username);
+      if (!userEntry) {
+        userEntry = { username: username, xp: xp };
+        leaderboard.push(userEntry);
+      } else {
+        userEntry.xp = xp;
+      }
+      leaderboard.sort((a, b) => b.xp - a.xp);
+      localStorage.setItem("globalLeaderboard", JSON.stringify(leaderboard));
+      renderLeaderboard(leaderboard);
+    }
+
+    function renderLeaderboard(leaderboard) {
+      const listEl = document.getElementById("leaderboardList");
+      listEl.innerHTML = "";
+      leaderboard.forEach(entry => {
+        const li = document.createElement("li");
+        li.textContent = entry.username + " - " + entry.xp + " XP";
+        listEl.appendChild(li);
+      });
+    }
+
+    // Floating Points Animation
+    function showPointAwardAnimation(text) {
+      const container = document.getElementById("pointAnimationContainer");
+      const span = document.createElement("span");
+      span.className = "point-animation";
+      span.style.left = Math.random() * 80 + "%";
+      span.style.top = "50%";
+      span.innerText = text;
+      container.appendChild(span);
+      setTimeout(() => {
+        container.removeChild(span);
+      }, 2000);
+    }
+
+    // Challenge System
+    function formatTime(seconds) {
+      const m = Math.floor(seconds / 60);
+      const s = seconds % 60;
+      return m.toString().padStart(2, '0') + ":" + s.toString().padStart(2, '0');
+    }
+
+    function renderChallenges() {
+      const listContainer = document.getElementById("challengeList");
+      listContainer.innerHTML = "";
+      challenges.forEach(challenge => {
+        const entry = document.createElement("div");
+        entry.classList.add("challenge-entry");
+        if (challenge.status === "active") {
+          entry.classList.add("active");
+        } else if (challenge.status === "completed") {
+          entry.classList.add("completed");
         }
-        setDailyChallenge();
+        const titleSpan = document.createElement("span");
+        titleSpan.textContent = challenge.title;
+        entry.appendChild(titleSpan);
 
-        // --- User Login / Setup ---
-        window.setUsername = function() {
-            const input = document.getElementById("usernameInput");
-            if (input.value.trim() !== "") {
-                username = input.value.trim();
-                localStorage.setItem("username", username);
-                document.getElementById("loginContainer").style.display = "none";
-                document.getElementById("mainContent").style.display = "block";
-                updateXPBar();
-                updateGlobalLeaderboard();
-            } else {
-                alert("Please enter a valid username.");
-            }
-        };
-
-        // --- XP Management ---
-        window.addXP = function(amount) {
-            xp += amount;
-            localStorage.setItem("xp", xp);
-            updateXPBar();
-            updateGlobalLeaderboard();
-        };
-        function updateXPBar() {
-            const percentage = (xp % xpToNextLevel) / xpToNextLevel * 100;
-            document.getElementById("xpBar").style.width = percentage + "%";
+        const rightDiv = document.createElement("div");
+        if (challenge.status === "active" && challenge.duration > 0) {
+          if (challenge.remaining <= 0) {
+            // Timer complete, show claim button
+            const claimBtn = document.createElement("button");
+            claimBtn.textContent = "Claim " + challenge.points + " XP";
+            claimBtn.onclick = function() { claimChallenge(challenge.id); };
+            rightDiv.appendChild(claimBtn);
+          } else {
+            rightDiv.textContent = formatTime(challenge.remaining);
+          }
+        } else if (challenge.status === "completed") {
+          rightDiv.textContent = "Completed";
+        } else {
+          rightDiv.textContent = "Locked";
         }
+        entry.appendChild(rightDiv);
+        listContainer.appendChild(entry);
+      });
+    }
 
-        // --- Badge & Achievement Animations ---
-        window.unlockBadge = function(badgeName) {
-            const badgePopup = document.getElementById("badgePopup");
-            badgePopup.innerHTML = "🏅 " + badgeName + " Unlocked!";
-            badgePopup.style.display = "block";
-            badgePopup.style.top = "20px";
-            setTimeout(() => {
-                badgePopup.style.top = "-100px";
-                setTimeout(() => { badgePopup.style.display = "none"; }, 500);
-            }, 3000);
-        };
-
-        // Daily Challenge Completion
-        window.completeChallenge = function() {
-            addXP(50);
-            unlockBadge("Daily Challenge Master");
-            alert("Challenge Completed! You earned 50 XP!");
-            // (Optional: Reset challenge status for the day.)
-        };
-
-        // --- Tiered Listening Timer ---
-        function startListeningTimer() {
-            if(timerInterval) return;
-            timerInterval = setInterval(() => {
-                listeningTime++;
-                checkThresholds();
-                // (Optional: update a “listening time” display on-screen)
-            }, 1000);
+    function claimChallenge(id) {
+      const challenge = challenges.find(c => c.id === id);
+      if (challenge && challenge.status === "active" && challenge.remaining <= 0) {
+        addXP(challenge.points);
+        challenge.status = "completed";
+        // Activate next challenge if available
+        const index = challenges.findIndex(c => c.id === id);
+        if (index + 1 < challenges.length) {
+          challenges[index + 1].status = "active";
+          challenges[index + 1].remaining = challenges[index + 1].duration;
         }
-        function stopListeningTimer() {
-            clearInterval(timerInterval);
-            timerInterval = null;
-        }
-        function checkThresholds() {
-            thresholds.forEach(threshold => {
-                if (!threshold.awarded && listeningTime >= threshold.seconds) {
-                    threshold.awarded = true;
-                    addXP(threshold.points);
-                    showPointAwardAnimation("+" + threshold.points + " XP");
-                    // For example: unlock a special badge at 1 hour
-                    if(threshold.seconds === 3600) {
-                        unlockBadge("1 Hour Listener");
-                    }
-                }
-            });
-        }
+        saveChallenges();
+        renderChallenges();
+        unlockBadge(challenge.title);
+      }
+    }
 
-        // --- Floating Points Animation ---
-        function showPointAwardAnimation(text) {
-            const container = document.getElementById("pointAnimationContainer");
-            const span = document.createElement("span");
-            span.className = "point-animation";
-            span.style.left = Math.random() * 80 + "%";
-            span.style.top = "50%";
-            span.innerText = text;
-            container.appendChild(span);
-            setTimeout(() => {
-                container.removeChild(span);
-            }, 2000);
+    // Update challenge timer if stream is playing
+    setInterval(() => {
+      if (streamIsPlaying) {
+        let activeChallenge = challenges.find(c => c.status === "active" && c.duration > 0);
+        if (activeChallenge && activeChallenge.remaining > 0) {
+          activeChallenge.remaining = Math.max(0, activeChallenge.remaining - 1);
+          saveChallenges();
+          renderChallenges();
         }
+      }
+    }, 1000);
 
-        // --- Global Leaderboard (Simulated with localStorage) ---
-        function updateGlobalLeaderboard() {
-            let leaderboard = JSON.parse(localStorage.getItem("globalLeaderboard") || "[]");
-            // Update or add the current user
-            let userEntry = leaderboard.find(entry => entry.username === username);
-            if (!userEntry) {
-                userEntry = { username: username, xp: xp };
-                leaderboard.push(userEntry);
-            } else {
-                userEntry.xp = xp;
-            }
-            // Sort descending by XP
-            leaderboard.sort((a, b) => b.xp - a.xp);
-            localStorage.setItem("globalLeaderboard", JSON.stringify(leaderboard));
-            renderLeaderboard(leaderboard);
+    // Audio Player & Timer Integration
+    const streamPlayer = document.getElementById("streamPlayer");
+    streamPlayer.addEventListener("play", () => {
+      document.getElementById("streamStatus").innerHTML = '🔴 Live Stream <span class="live-indicator"><span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></span>';
+      streamIsPlaying = true;
+    });
+    streamPlayer.addEventListener("pause", () => {
+      document.getElementById("streamStatus").innerHTML = '⏸️ Stream Paused';
+      streamIsPlaying = false;
+    });
+    streamPlayer.addEventListener("ended", () => {
+      streamIsPlaying = false;
+    });
+
+    // Future Monetization Placeholder
+    function upgradeAccount() {
+      alert("Upgrade feature coming soon! Stay tuned for XP Boosts and more.");
+    }
+
+    // User Login / Setup
+    window.setUsername = function() {
+      const input = document.getElementById("usernameInput");
+      if (input.value.trim() !== "") {
+        username = input.value.trim();
+        localStorage.setItem("username", username);
+        document.getElementById("loginContainer").style.display = "none";
+        document.getElementById("mainContent").style.display = "block";
+        updateXPBar();
+        updateGlobalLeaderboard();
+        // Initialize challenges if not already present
+        let loadedChallenges = loadChallenges();
+        if (loadedChallenges) {
+          challenges = loadedChallenges;
+        } else {
+          challenges = JSON.parse(JSON.stringify(defaultChallenges));
+          // Mark "Log In" challenge as completed automatically
+          challenges[0].status = "completed";
+          challenges[0].remaining = 0;
+          addXP(challenges[0].points);
+          // Activate the next challenge
+          if (challenges.length > 1) {
+            challenges[1].status = "active";
+            challenges[1].remaining = challenges[1].duration;
+          }
+          saveChallenges();
         }
-        function renderLeaderboard(leaderboard) {
-            const listEl = document.getElementById("leaderboardList");
-            listEl.innerHTML = "";
-            leaderboard.forEach(entry => {
-                const li = document.createElement("li");
-                li.textContent = entry.username + " - " + entry.xp + " XP";
-                listEl.appendChild(li);
-            });
+        renderChallenges();
+      } else {
+        alert("Please enter a valid username.");
+      }
+    };
+
+    // Auto-login if a username exists
+    if (localStorage.getItem("username")) {
+      username = localStorage.getItem("username");
+      document.getElementById("loginContainer").style.display = "none";
+      document.getElementById("mainContent").style.display = "block";
+      updateXPBar();
+      updateGlobalLeaderboard();
+      let loadedChallenges = loadChallenges();
+      if (loadedChallenges) {
+        challenges = loadedChallenges;
+      } else {
+        challenges = JSON.parse(JSON.stringify(defaultChallenges));
+        // Mark "Log In" challenge as completed automatically
+        challenges[0].status = "completed";
+        challenges[0].remaining = 0;
+        addXP(challenges[0].points);
+        // Activate the next challenge
+        if (challenges.length > 1) {
+          challenges[1].status = "active";
+          challenges[1].remaining = challenges[1].duration;
         }
-
-        // --- Audio Player & Timer Integration ---
-        const streamPlayer = document.getElementById("streamPlayer");
-        streamPlayer.addEventListener("play", () => {
-            document.getElementById("streamStatus").innerHTML = '🔴 Live Stream <span class="live-indicator"><span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></span>';
-            startListeningTimer();
-        });
-        streamPlayer.addEventListener("pause", () => {
-            document.getElementById("streamStatus").innerHTML = '⏸️ Stream Paused';
-            stopListeningTimer();
-        });
-        streamPlayer.addEventListener("ended", () => {
-            stopListeningTimer();
-        });
-
-        // --- Future Monetization Placeholder ---
-        window.upgradeAccount = function() {
-            alert("Upgrade feature coming soon! Stay tuned for XP Boosts and more.");
-        };
-
-        // If a username already exists, skip login
-        if(username) {
-            document.getElementById("loginContainer").style.display = "none";
-            document.getElementById("mainContent").style.display = "block";
-            updateXPBar();
-            updateGlobalLeaderboard();
-        }
-    })();
-    </script>
+        saveChallenges();
+      }
+      renderChallenges();
+    }
+  </script>
 
 </body>
 </html>
