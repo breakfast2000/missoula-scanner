@@ -1,56 +1,211 @@
-<script>
-    const ADALO_API_KEY = "YOUR_ADALO_API_KEY";  // Replace with your actual API Key
-    const USER_EMAIL = "testuser@example.com";   // Replace with logged-in user’s email (Dynamically fetched later)
-    const ADALO_APP_ID = "YOUR_APP_ID";          // Replace with your Adalo App ID
-
-    var audio = new Audio("https://listen.broadcastify.com/82m7nxfkt4hw6vd.mp3");
-    var btn = document.getElementById("playPauseBtn");
-    var volumeSlider = document.getElementById("volumeSlider");
-
-    btn.addEventListener("click", function() {
-        if (audio.paused) {
-            audio.play();
-            btn.innerHTML = "⏸ Pause";
-        } else {
-            audio.pause();
-            btn.innerHTML = "▶ Play";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Missoula Public Safety Scanner</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <style>
+        /* Modern Dark Theme */
+        body {
+            background: #121212;
+            color: white;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
         }
-    });
 
-    volumeSlider.addEventListener("input", function() {
-        audio.volume = volumeSlider.value;
-    });
-
-    function switchTab(tabName) {
-        document.querySelectorAll(".content").forEach(c => c.classList.remove("active"));
-        document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-
-        document.getElementById(tabName).classList.add("active");
-        document.querySelector(`.tab[onclick="switchTab('${tabName}')"]`).classList.add("active");
-
-        if (tabName === "chat") {
-            checkPremiumAccess();
+        /* Player Container */
+        .player-container {
+            background: #1E1E1E;
+            border-radius: 15px;
+            padding: 15px;
+            margin: 10px auto;
+            width: 90%;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
         }
-    }
 
-    async function checkPremiumAccess() {
-        try {
-            let response = await fetch(`https://api.adalo.com/v0/apps/${ADALO_APP_ID}/collections/Users?filters=[{"field":"Email","operator":"equals","value":"${USER_EMAIL}"}]`, {
-                headers: { "Authorization": `Bearer ${ADALO_API_KEY}` }
-            });
+        /* Always Online Status */
+        .status {
+            font-size: 18px;
+            padding: 10px;
+            background: rgba(0, 255, 0, 0.2);
+            border-radius: 10px;
+            display: inline-block;
+            margin-bottom: 10px;
+            color: #00FF00;
+        }
 
-            let data = await response.json();
-            let user = data[0];
+        /* Blinking Dots Animation */
+        .dots {
+            display: inline-block;
+            font-size: 18px;
+        }
+        .dot {
+            animation: blink 1.5s infinite;
+            opacity: 0;
+        }
+        .dot:nth-child(1) { animation-delay: 0s; }
+        .dot:nth-child(2) { animation-delay: 0.5s; }
+        .dot:nth-child(3) { animation-delay: 1s; }
 
-            if (user && user.IsPremium) {
+        @keyframes blink {
+            0% { opacity: 0; }
+            50% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        /* Play/Pause Button */
+        .play-btn {
+            background: linear-gradient(145deg, #FF9800, #E68900);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 22px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .play-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0px 0px 15px rgba(255, 152, 0, 0.4);
+        }
+
+        /* Volume Control */
+        .volume-container {
+            margin-top: 15px;
+        }
+
+        input[type="range"] {
+            width: 80%;
+            margin-top: 10px;
+        }
+
+        /* Tabs Navigation */
+        .tab-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #aaa;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab.active {
+            color: white;
+            border-bottom: 3px solid #FF9800;
+        }
+
+        /* Content Sections */
+        .content {
+            display: none;
+            padding: 10px;
+            background: #1E1E1E;
+            border-radius: 10px;
+            width: 90%;
+            margin: auto;
+            text-align: left;
+        }
+
+        .content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <h2>📡 Missoula Public Safety Scanner</h2>
+
+    <!-- Always Online Status -->
+    <p id="streamStatus" class="status">🟢 Online <span class="dots"><span class="dot">.</span> <span class="dot">.</span> <span class="dot">.</span></span></p>
+
+    <!-- Player Container -->
+    <div class="player-container">
+        <h3>Missoula Police, Sheriff, Fire & EMS</h3>
+
+        <button id="playPauseBtn" class="play-btn">▶ Play</button>
+
+        <div class="volume-container">
+            <p>Volume</p>
+            <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="1">
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tab-container">
+        <div class="tab active" onclick="switchTab('player')">Player</div>
+        <div class="tab" onclick="switchTab('info')">Info</div>
+        <div class="tab" onclick="switchTab('chat')">Chat</div>
+    </div>
+
+    <!-- Content Sections -->
+    <div id="player" class="content active">
+        <p>🎧 Live Scanner Feed for Missoula County</p>
+    </div>
+
+    <div id="info" class="content">
+        <h3>Scanner Information</h3>
+        <p>🛰️ Coverage: Missoula County, Montana</p>
+        <p>🚓 Live Feeds: Police, Sheriff, Fire & EMS</p>
+        <p>📅 Status: Online</p>
+    </div>
+
+    <div id="chat" class="content">
+        <h3>💬 Scanner Community Chat</h3>
+        <iframe id="chatFrame" src="" width="100%" height="400px" style="border: none;"></iframe>
+        <p id="premiumMessage" style="color: red; text-align: center; display: none;">🔒 Premium Feature! Upgrade to Access.</p>
+    </div>
+
+    <script>
+        var audio = new Audio("https://listen.broadcastify.com/82m7nxfkt4hw6vd.mp3");
+        var btn = document.getElementById("playPauseBtn");
+        var volumeSlider = document.getElementById("volumeSlider");
+
+        btn.addEventListener("click", function() {
+            if (audio.paused) {
+                audio.play();
+                btn.innerHTML = "⏸ Pause";
+            } else {
+                audio.pause();
+                btn.innerHTML = "▶ Play";
+            }
+        });
+
+        volumeSlider.addEventListener("input", function() {
+            audio.volume = volumeSlider.value;
+        });
+
+        function switchTab(tabName) {
+            document.querySelectorAll(".content").forEach(c => c.classList.remove("active"));
+            document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+            
+            document.getElementById(tabName).classList.add("active");
+            document.querySelector(`.tab[onclick="switchTab('${tabName}')"]`).classList.add("active");
+
+            if (tabName === "chat") {
+                checkPremiumAccess();
+            }
+        }
+
+        function checkPremiumAccess() {
+            let isPremiumUser = false; // Change this to pull from Adalo database later
+
+            if (isPremiumUser) {
                 document.getElementById("chatFrame").src = "https://your-adalo-chat-url.com"; 
                 document.getElementById("premiumMessage").style.display = "none";
             } else {
                 document.getElementById("chatFrame").src = "";
                 document.getElementById("premiumMessage").style.display = "block";
             }
-        } catch (error) {
-            console.error("Error fetching Adalo user data:", error);
         }
-    }
-</script>
+    </script>
+
+</body>
+</html>
