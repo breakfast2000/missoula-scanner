@@ -15,25 +15,57 @@
             padding: 20px;
         }
 
+        /* Scrolling Ticker - NOW AT VERY TOP */
+        .ticker-wrapper {
+            width: 100%;
+            overflow: hidden;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 8px 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 100; /* Ensures it's above everything but still clickable */
+        }
+
+        .ticker {
+            display: inline-block;
+            white-space: nowrap;
+            animation: scrollTicker 12s linear infinite;
+            font-size: 16px;
+            font-weight: bold;
+            color: #FFD700;
+        }
+
+        @keyframes scrollTicker {
+            from { transform: translateX(100%); }
+            to { transform: translateX(-100%); }
+        }
+
         /* Player Container */
         .player-container {
             background: #1E1E1E;
             border-radius: 15px;
             padding: 15px;
-            margin: 10px auto;
+            margin: 60px auto 10px; /* Pushes everything below the ticker */
             width: 90%;
             box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
         }
 
-        /* Always Online Status */
+        /* Live Indicator (Animated) */
         .status {
             font-size: 18px;
             padding: 10px;
-            background: rgba(0, 255, 0, 0.2);
+            background: rgba(0, 255, 0, 0.3);
             border-radius: 10px;
             display: inline-block;
             margin-bottom: 10px;
             color: #00FF00;
+            animation: livePulse 2s infinite alternate ease-in-out;
+        }
+
+        @keyframes livePulse {
+            0% { background: rgba(0, 255, 0, 0.3); }
+            100% { background: rgba(0, 255, 0, 0.7); }
         }
 
         /* Blinking Dots Animation */
@@ -77,6 +109,8 @@
             display: flex;
             justify-content: center;
             margin-top: 20px;
+            position: relative;
+            z-index: 2;
         }
 
         .tab {
@@ -111,8 +145,13 @@
 </head>
 <body>
 
+    <!-- Scrolling Ticker (Now at the Very Top) -->
+    <div class="ticker-wrapper">
+        <div class="ticker" id="tickerText">🚨 Breaking News: Live Police, Fire & EMS Scanner Streaming Now! Stay Updated in Real-Time 🚨</div>
+    </div>
+
     <!-- Header -->
-    <h2>📡 Missoula Public Safety Scanner</h2>
+    <h2 style="margin-top: 60px;">📡 Missoula Public Safety Scanner</h2>
 
     <!-- Always Online Status -->
     <p id="streamStatus" class="status">🟢 Online <span class="dots"><span class="dot">.</span> <span class="dot">.</span> <span class="dot">.</span></span></p>
@@ -128,6 +167,7 @@
         <div class="tab active" data-tab="player">Player</div>
         <div class="tab" data-tab="info">Info</div>
         <div class="tab" data-tab="chat">Chat</div>
+        <div class="tab" data-tab="leaderboard">Leaderboard</div>
     </div>
 
     <!-- Content Sections -->
@@ -144,44 +184,57 @@
 
     <div id="chat" class="content">
         <h3>💬 Scanner Community Chat</h3>
-        <iframe id="chatFrame" src="https://your-adalo-chat-url.com" width="100%" height="400px" style="border: none;"></iframe>
+        <p>🚧 Coming Soon 🚧</p>
+    </div>
+
+    <div id="leaderboard" class="content">
+        <h3>🏆 Leaderboard</h3>
+        <p>🚧 Coming Soon 🚧</p>
     </div>
 
     <script>
-        window.onload = function() {
-            var audio = new Audio("https://listen.broadcastify.com/82m7nxfkt4hw6vd.mp3");
-            var btn = document.getElementById("playPauseBtn");
+        let headlines = [
+            "🚨 Breaking News: Live Police, Fire & EMS Scanner Streaming Now!",
+            "🔥 Fire Alert: Crews responding near Rattlesnake area.",
+            "📡 New Feature: Chat and Leaderboard coming soon!",
+            "📢 Report issues: Email missoula911scanner@gmail.com."
+        ];
 
-            btn.addEventListener("click", function() {
-                if (audio.paused) {
-                    audio.play();
-                    btn.innerHTML = "⏸ Pause";
-                } else {
-                    audio.pause();
-                    btn.innerHTML = "▶ Play";
-                }
-            });
+        function updateTicker() {
+            let tickerElement = document.getElementById("tickerText");
+            let currentIndex = 0;
 
-            // Attach event listeners to all tabs
-            document.querySelectorAll(".tab").forEach(tab => {
-                tab.addEventListener("click", function() {
-                    switchTab(this.getAttribute("data-tab"));
-                });
-            });
-        };
+            function changeHeadline() {
+                tickerElement.innerHTML = headlines[currentIndex];
+                currentIndex = (currentIndex + 1) % headlines.length;
+            }
 
-        function switchTab(tabName) {
-            // Hide all content sections
-            document.querySelectorAll(".content").forEach(c => c.classList.remove("active"));
-            document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-
-            // Show the selected tab content
-            let selectedContent = document.getElementById(tabName);
-            let selectedTab = document.querySelector(`.tab[data-tab="${tabName}"]`);
-
-            if (selectedContent) selectedContent.classList.add("active");
-            if (selectedTab) selectedTab.classList.add("active");
+            setInterval(changeHeadline, 8000);
         }
+
+        updateTicker();
+
+        let audio = new Audio("https://listen.broadcastify.com/82m7nxfkt4hw6vd.mp3");
+        let btn = document.getElementById("playPauseBtn");
+
+        btn.addEventListener("click", function() {
+            if (audio.paused) {
+                audio.play();
+                btn.innerHTML = "⏸ Pause";
+            } else {
+                audio.pause();
+                btn.innerHTML = "▶ Play";
+            }
+        });
+
+        document.querySelectorAll(".tab").forEach(tab => {
+            tab.addEventListener("click", function() {
+                document.querySelectorAll(".content").forEach(c => c.classList.remove("active"));
+                document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+                document.getElementById(this.dataset.tab).classList.add("active");
+                this.classList.add("active");
+            });
+        });
     </script>
 
 </body>
