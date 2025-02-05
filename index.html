@@ -1,241 +1,296 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Missoula Public Safety Scanner</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <style>
-        /* Modern Dark Theme */
-        body {
-            background: #121212;
-            color: white;
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 20px;
-        }
-
-        /* Scrolling Ticker - NOW AT VERY TOP */
-        .ticker-wrapper {
-            width: 100%;
-            overflow: hidden;
-            background: rgba(0, 0, 0, 0.3);
-            padding: 8px 0;
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 100; /* Ensures it's above everything but still clickable */
-        }
-
-        .ticker {
-            display: inline-block;
-            white-space: nowrap;
-            animation: scrollTicker 12s linear infinite;
-            font-size: 16px;
-            font-weight: bold;
-            color: #FFD700;
-        }
-
-        @keyframes scrollTicker {
-            from { transform: translateX(100%); }
-            to { transform: translateX(-100%); }
-        }
-
-        /* Player Container */
-        .player-container {
-            background: #1E1E1E;
-            border-radius: 15px;
-            padding: 15px;
-            margin: 60px auto 10px; /* Pushes everything below the ticker */
-            width: 90%;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
-        }
-
-        /* Live Indicator (Animated) */
-        .status {
-            font-size: 18px;
-            padding: 10px;
-            background: rgba(0, 255, 0, 0.3);
-            border-radius: 10px;
-            display: inline-block;
-            margin-bottom: 10px;
-            color: #00FF00;
-            animation: livePulse 2s infinite alternate ease-in-out;
-        }
-
-        @keyframes livePulse {
-            0% { background: rgba(0, 255, 0, 0.3); }
-            100% { background: rgba(0, 255, 0, 0.7); }
-        }
-
-        /* Blinking Dots Animation */
-        .dots {
-            display: inline-block;
-            font-size: 18px;
-        }
-        .dot {
-            animation: blink 1.5s infinite;
-            opacity: 0;
-        }
-        .dot:nth-child(1) { animation-delay: 0s; }
-        .dot:nth-child(2) { animation-delay: 0.5s; }
-        .dot:nth-child(3) { animation-delay: 1s; }
-
-        @keyframes blink {
-            0% { opacity: 0; }
-            50% { opacity: 1; }
-            100% { opacity: 0; }
-        }
-
-        /* Play/Pause Button */
-        .play-btn {
-            background: linear-gradient(145deg, #FF9800, #E68900);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            font-size: 22px;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.2s ease-in-out;
-        }
-
-        .play-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0px 0px 15px rgba(255, 152, 0, 0.4);
-        }
-
-        /* Tabs Navigation */
-        .tab-container {
-            display: flex;
-            justify-content: center;
-            margin-top: 20px;
-            position: relative;
-            z-index: 2;
-        }
-
-        .tab {
-            padding: 10px 20px;
-            cursor: pointer;
-            font-weight: bold;
-            color: #aaa;
-            border-bottom: 3px solid transparent;
-            transition: all 0.2s ease-in-out;
-        }
-
-        .tab.active {
-            color: white;
-            border-bottom: 3px solid #FF9800;
-        }
-
-        /* Content Sections */
-        .content {
-            display: none;
-            padding: 10px;
-            background: #1E1E1E;
-            border-radius: 10px;
-            width: 90%;
-            margin: auto;
-            text-align: left;
-        }
-
-        .content.active {
-            display: block;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Missoula Public Safety Scanner</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+  <style>
+    /* Modern Dark Theme */
+    body {
+      background: #121212;
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+      margin: 0;
+    }
+    
+    /* Scrolling Ticker Container */
+    .ticker-wrapper {
+      width: 100%;
+      overflow: hidden;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 8px 0;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 100;
+    }
+    
+    /* The ticker text; its position is controlled via JavaScript */
+    .ticker {
+      display: inline-block;
+      white-space: nowrap;
+      font-size: 16px;
+      font-weight: bold;
+      color: #FFD700;
+      /* No preset animation—JS will set the transform and transition */
+    }
+    
+    /* Player Container */
+    .player-container {
+      background: #1E1E1E;
+      border-radius: 15px;
+      padding: 15px;
+      margin: 60px auto 10px;
+      width: 90%;
+      max-width: 600px;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+    }
+    
+    /* Live Indicator (Animated) */
+    .status {
+      font-size: 18px;
+      padding: 10px;
+      background: rgba(0, 255, 0, 0.3);
+      border-radius: 10px;
+      display: inline-block;
+      margin-bottom: 10px;
+      color: #00FF00;
+      animation: livePulse 2s infinite alternate ease-in-out;
+    }
+    
+    @keyframes livePulse {
+      0% { background: rgba(0, 255, 0, 0.3); }
+      100% { background: rgba(0, 255, 0, 0.7); }
+    }
+    
+    /* Blinking Dots Animation */
+    .dots {
+      display: inline-block;
+      font-size: 18px;
+    }
+    .dot {
+      animation: blink 1.5s infinite;
+      opacity: 0;
+    }
+    .dot:nth-child(1) { animation-delay: 0s; }
+    .dot:nth-child(2) { animation-delay: 0.5s; }
+    .dot:nth-child(3) { animation-delay: 1s; }
+    
+    @keyframes blink {
+      0% { opacity: 0; }
+      50% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+    
+    /* Play/Pause Button */
+    .play-btn {
+      background: linear-gradient(145deg, #FF9800, #E68900);
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      font-size: 22px;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
+    }
+    
+    .play-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0px 0px 15px rgba(255, 152, 0, 0.4);
+    }
+    
+    /* Tabs Navigation */
+    .tab-container {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+      position: relative;
+      z-index: 2;
+    }
+    
+    .tab {
+      padding: 10px 20px;
+      cursor: pointer;
+      font-weight: bold;
+      color: #aaa;
+      border-bottom: 3px solid transparent;
+      transition: all 0.2s ease-in-out;
+      outline: none;
+    }
+    
+    .tab.active {
+      color: white;
+      border-bottom: 3px solid #FF9800;
+    }
+    
+    /* Content Sections */
+    .content {
+      display: none;
+      padding: 10px;
+      background: #1E1E1E;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 600px;
+      margin: 20px auto;
+      text-align: left;
+    }
+    
+    .content.active {
+      display: block;
+    }
+  </style>
 </head>
 <body>
-
-    <!-- Scrolling Ticker (Now at the Very Top) -->
-    <div class="ticker-wrapper">
-        <div class="ticker" id="tickerText">🚨 Breaking News: Live Police, Fire & EMS Scanner Streaming Now! Stay Updated in Real-Time 🚨</div>
+  <!-- Scrolling Ticker -->
+  <div class="ticker-wrapper">
+    <div class="ticker" id="tickerText">
+      <!-- The ticker text will be set dynamically -->
     </div>
-
-    <!-- Header -->
-    <h2 style="margin-top: 60px;">📡 Missoula Public Safety Scanner</h2>
-
-    <!-- Always Online Status -->
-    <p id="streamStatus" class="status">🟢 Online <span class="dots"><span class="dot">.</span> <span class="dot">.</span> <span class="dot">.</span></span></p>
-
-    <!-- Player Container -->
-    <div class="player-container">
-        <h3>Missoula Police, Sheriff, Fire & EMS</h3>
-        <button id="playPauseBtn" class="play-btn">▶ Play</button>
-    </div>
-
-    <!-- Tabs -->
-    <div class="tab-container">
-        <div class="tab active" data-tab="player">Player</div>
-        <div class="tab" data-tab="info">Info</div>
-        <div class="tab" data-tab="chat">Chat</div>
-        <div class="tab" data-tab="leaderboard">Leaderboard</div>
-    </div>
-
-    <!-- Content Sections -->
-    <div id="player" class="content active">
-        <p>🎧 Live Scanner Feed for Missoula County</p>
-    </div>
-
-    <div id="info" class="content">
-        <h3>Scanner Information</h3>
-        <p>🛰️ Coverage: Missoula County, Montana</p>
-        <p>🚓 Live Feeds: Police, Sheriff, Fire & EMS</p>
-        <p>📅 Status: Online</p>
-    </div>
-
-    <div id="chat" class="content">
-        <h3>💬 Scanner Community Chat</h3>
-        <p>🚧 Coming Soon 🚧</p>
-    </div>
-
-    <div id="leaderboard" class="content">
-        <h3>🏆 Leaderboard</h3>
-        <p>🚧 Coming Soon 🚧</p>
-    </div>
-
-    <script>
-        let headlines = [
-            "🚨 Breaking News: Live Police, Fire & EMS Scanner Streaming Now!",
-            "🔥 Fire Alert: Crews responding near Rattlesnake area.",
-            "📡 New Feature: Chat and Leaderboard coming soon!",
-            "📢 Report issues: Email missoula911scanner@gmail.com."
-        ];
-
-        function updateTicker() {
-            let tickerElement = document.getElementById("tickerText");
-            let currentIndex = 0;
-
-            function changeHeadline() {
-                tickerElement.innerHTML = headlines[currentIndex];
-                currentIndex = (currentIndex + 1) % headlines.length;
-            }
-
-            setInterval(changeHeadline, 8000);
+  </div>
+  
+  <!-- Header -->
+  <h2 style="margin-top: 60px;">📡 Missoula Public Safety Scanner</h2>
+  
+  <!-- Live Status -->
+  <p id="streamStatus" class="status">
+    🟢 Online <span class="dots"><span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></span>
+  </p>
+  
+  <!-- Player Container -->
+  <div class="player-container">
+    <h3>Missoula Police, Sheriff, Fire & EMS</h3>
+    <button id="playPauseBtn" class="play-btn" aria-label="Play">▶ Play</button>
+  </div>
+  
+  <!-- Tabs -->
+  <div class="tab-container">
+    <div class="tab active" data-tab="player" tabindex="0">Player</div>
+    <div class="tab" data-tab="info" tabindex="0">Info</div>
+    <div class="tab" data-tab="chat" tabindex="0">Chat</div>
+    <div class="tab" data-tab="leaderboard" tabindex="0">Leaderboard</div>
+  </div>
+  
+  <!-- Content Sections -->
+  <div id="player" class="content active">
+    <p>🎧 Live Scanner Feed for Missoula County</p>
+  </div>
+  
+  <div id="info" class="content">
+    <h3>Scanner Information</h3>
+    <p>🛰️ Coverage: Missoula County, Montana</p>
+    <p>🚓 Live Feeds: Police, Sheriff, Fire & EMS</p>
+    <p>📅 Status: Online</p>
+  </div>
+  
+  <div id="chat" class="content">
+    <h3>💬 Scanner Community Chat</h3>
+    <p>🚧 Coming Soon 🚧</p>
+  </div>
+  
+  <div id="leaderboard" class="content">
+    <h3>🏆 Leaderboard</h3>
+    <p>🚧 Coming Soon 🚧</p>
+  </div>
+  
+  <script>
+    /***** Simple Scrolling Ticker *****/
+    const headlines = [
+      "🚨 Breaking News: Live Police, Fire & EMS Scanner Streaming Now!",
+      "🔥 Fire Alert: Crews responding near Rattlesnake area.",
+      "📡 New Feature: Chat and Leaderboard coming soon!",
+      "📢 Report issues: Email missoula911scanner@gmail.com."
+    ];
+    
+    function animateTicker() {
+      const ticker = document.getElementById("tickerText");
+      const container = document.querySelector(".ticker-wrapper");
+      let index = 0;
+      
+      function animate() {
+        // Set the current message
+        const message = headlines[index];
+        ticker.textContent = message;
+        
+        // Remove any transition and set starting position: fully off to the right
+        ticker.style.transition = "none";
+        const containerWidth = container.offsetWidth;
+        ticker.style.transform = `translateX(${containerWidth}px)`;
+        
+        // Force a reflow so the starting position is applied immediately
+        ticker.offsetWidth;
+        
+        // Now measure the width of the text (it now contains the new message)
+        const textWidth = ticker.offsetWidth;
+        
+        // Set the transition to scroll the text off to the left (completely off the screen)
+        ticker.style.transition = "transform 5s linear";
+        ticker.style.transform = `translateX(-${textWidth}px)`;
+        
+        // When the transition ends, wait 0.5 seconds and then show the next message
+        ticker.addEventListener("transitionend", onTransitionEnd);
+      }
+      
+      function onTransitionEnd() {
+        // Remove the event listener to avoid duplicate calls
+        const ticker = document.getElementById("tickerText");
+        ticker.removeEventListener("transitionend", onTransitionEnd);
+        setTimeout(() => {
+          index = (index + 1) % headlines.length;
+          animate();
+        }, 500);
+      }
+      
+      animate();
+    }
+    
+    animateTicker();
+    
+    /***** Audio Streaming Setup *****/
+    // Use the updated MP3 feed URL.
+    const audio = new Audio("https://listen.broadcastify.com/ysg4rc3njfbtzhq.mp3");
+    const playBtn = document.getElementById("playPauseBtn");
+    
+    playBtn.addEventListener("click", function() {
+      if (audio.paused) {
+        audio.play().then(() => {
+          playBtn.innerHTML = "⏸ Pause";
+          playBtn.setAttribute("aria-label", "Pause");
+        }).catch(error => {
+          console.error("Playback error:", error);
+        });
+      } else {
+        audio.pause();
+        playBtn.innerHTML = "▶ Play";
+        playBtn.setAttribute("aria-label", "Play");
+      }
+    });
+    
+    // Log any audio errors for debugging
+    audio.addEventListener("error", function(e) {
+      console.error("Audio error:", e);
+    });
+    
+    /***** Tabs Navigation *****/
+    const tabs = document.querySelectorAll(".tab");
+    tabs.forEach(tab => {
+      tab.addEventListener("click", function() {
+        document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+        document.querySelectorAll(".content").forEach(c => c.classList.remove("active"));
+        this.classList.add("active");
+        document.getElementById(this.dataset.tab).classList.add("active");
+      });
+      
+      // Allow keyboard activation (Enter or Space)
+      tab.addEventListener("keydown", function(e) {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          this.click();
         }
-
-        updateTicker();
-
-        let audio = new Audio("https://listen.broadcastify.com/82m7nxfkt4hw6vd.mp3");
-        let btn = document.getElementById("playPauseBtn");
-
-        btn.addEventListener("click", function() {
-            if (audio.paused) {
-                audio.play();
-                btn.innerHTML = "⏸ Pause";
-            } else {
-                audio.pause();
-                btn.innerHTML = "▶ Play";
-            }
-        });
-
-        document.querySelectorAll(".tab").forEach(tab => {
-            tab.addEventListener("click", function() {
-                document.querySelectorAll(".content").forEach(c => c.classList.remove("active"));
-                document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-                document.getElementById(this.dataset.tab).classList.add("active");
-                this.classList.add("active");
-            });
-        });
-    </script>
-
+      });
+    });
+  </script>
 </body>
 </html>
