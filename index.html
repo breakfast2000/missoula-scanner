@@ -16,7 +16,7 @@
       margin: 0;
     }
     
-    /* Scrolling Ticker Container */
+    /* Ticker Container */
     .ticker-wrapper {
       width: 100%;
       overflow: hidden;
@@ -28,14 +28,13 @@
       z-index: 100;
     }
     
-    /* The ticker text; its position is controlled via JavaScript */
+    /* Ticker Text */
     .ticker {
-      display: inline-block;
       white-space: nowrap;
       font-size: 16px;
       font-weight: bold;
       color: #FFD700;
-      /* No preset animation—JS will set the transform and transition */
+      will-change: transform;
     }
     
     /* Player Container */
@@ -49,7 +48,7 @@
       box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
     }
     
-    /* Live Indicator (Animated) */
+    /* Live Status */
     .status {
       font-size: 18px;
       padding: 10px;
@@ -66,19 +65,12 @@
       100% { background: rgba(0, 255, 0, 0.7); }
     }
     
-    /* Blinking Dots Animation */
-    .dots {
-      display: inline-block;
-      font-size: 18px;
-    }
-    .dot {
-      animation: blink 1.5s infinite;
-      opacity: 0;
-    }
+    /* Blinking Dots */
+    .dots { display: inline-block; font-size: 18px; }
+    .dot { animation: blink 1.5s infinite; opacity: 0; }
     .dot:nth-child(1) { animation-delay: 0s; }
     .dot:nth-child(2) { animation-delay: 0.5s; }
     .dot:nth-child(3) { animation-delay: 1s; }
-    
     @keyframes blink {
       0% { opacity: 0; }
       50% { opacity: 1; }
@@ -96,7 +88,6 @@
       cursor: pointer;
       transition: all 0.2s ease-in-out;
     }
-    
     .play-btn:hover {
       transform: scale(1.05);
       box-shadow: 0px 0px 15px rgba(255, 152, 0, 0.4);
@@ -110,7 +101,6 @@
       position: relative;
       z-index: 2;
     }
-    
     .tab {
       padding: 10px 20px;
       cursor: pointer;
@@ -120,7 +110,6 @@
       transition: all 0.2s ease-in-out;
       outline: none;
     }
-    
     .tab.active {
       color: white;
       border-bottom: 3px solid #FF9800;
@@ -137,18 +126,13 @@
       margin: 20px auto;
       text-align: left;
     }
-    
-    .content.active {
-      display: block;
-    }
+    .content.active { display: block; }
   </style>
 </head>
 <body>
-  <!-- Scrolling Ticker -->
+  <!-- RSS Ticker -->
   <div class="ticker-wrapper">
-    <div class="ticker" id="tickerText">
-      <!-- The ticker text will be set dynamically -->
-    </div>
+    <div class="ticker" id="ticker"></div>
   </div>
   
   <!-- Header -->
@@ -177,79 +161,82 @@
   <div id="player" class="content active">
     <p>🎧 Live Scanner Feed for Missoula County</p>
   </div>
-  
   <div id="info" class="content">
     <h3>Scanner Information</h3>
     <p>🛰️ Coverage: Missoula County, Montana</p>
     <p>🚓 Live Feeds: Police, Sheriff, Fire & EMS</p>
     <p>📅 Status: Online</p>
   </div>
-  
   <div id="chat" class="content">
     <h3>💬 Scanner Community Chat</h3>
     <p>🚧 Coming Soon 🚧</p>
   </div>
-  
   <div id="leaderboard" class="content">
     <h3>🏆 Leaderboard</h3>
     <p>🚧 Coming Soon 🚧</p>
   </div>
   
   <script>
-    /***** Simple Scrolling Ticker *****/
-    const headlines = [
-      "🚨 Breaking News: Live Police, Fire & EMS Scanner Streaming Now!",
-      "🔥 Fire Alert: Crews responding near Rattlesnake area.",
-      "📡 New Feature: Chat and Leaderboard coming soon!",
-      "📢 Report issues: Email missoula911scanner@gmail.com."
-    ];
-    
-    function animateTicker() {
-      const ticker = document.getElementById("tickerText");
-      const container = document.querySelector(".ticker-wrapper");
-      let index = 0;
+    /***** Smooth Scrolling Ticker Using requestAnimationFrame *****/
+    (function() {
+      // Replace these with your RSS feed headlines if desired.
+      const headlines = [
+        "🚨 Breaking News: Live Police, Fire & EMS Scanner Streaming Now!",
+        "🔥 Fire Alert: Crews responding near Rattlesnake area.",
+        "📡 New Feature: Chat and Leaderboard coming soon!",
+        "📢 Report issues: Email missoula911scanner@gmail.com."
+      ];
       
-      function animate() {
-        // Set the current message
-        const message = headlines[index];
+      const ticker = document.getElementById("ticker");
+      const container = document.querySelector(".ticker-wrapper");
+      let currentIndex = 0;
+      
+      function startTickerAnimation() {
+        // Set the current headline.
+        const message = headlines[currentIndex];
         ticker.textContent = message;
         
-        // Remove any transition and set starting position: fully off to the right
-        ticker.style.transition = "none";
+        // Force layout so we can measure widths.
         const containerWidth = container.offsetWidth;
-        ticker.style.transform = `translateX(${containerWidth}px)`;
-        
-        // Force a reflow so the starting position is applied immediately
-        ticker.offsetWidth;
-        
-        // Now measure the width of the text (it now contains the new message)
+        // Use a small timeout to allow text rendering.
         const textWidth = ticker.offsetWidth;
         
-        // Set the transition to scroll the text off to the left (completely off the screen)
-        ticker.style.transition = "transform 5s linear";
-        ticker.style.transform = `translateX(-${textWidth}px)`;
+        // Set the start and end positions.
+        const startPos = containerWidth;           // Start fully off the right.
+        const endPos = -textWidth;                   // End fully off the left.
+        const distance = startPos - endPos;
+        const duration = 20000; // in milliseconds
+        const speed = distance / duration; // pixels per millisecond
         
-        // When the transition ends, wait 0.5 seconds and then show the next message
-        ticker.addEventListener("transitionend", onTransitionEnd);
+        let startTime = null;
+        
+        // Animation loop using requestAnimationFrame.
+        function step(timestamp) {
+          if (!startTime) startTime = timestamp;
+          const elapsed = timestamp - startTime;
+          // Compute current position.
+          let currentPos = startPos - (elapsed * speed);
+          ticker.style.transform = `translateX(${currentPos}px)`;
+          
+          if (elapsed < duration) {
+            requestAnimationFrame(step);
+          } else {
+            // Ensure the text is fully off-screen.
+            ticker.style.transform = `translateX(${endPos}px)`;
+            // Wait 0.5 seconds then show the next headline.
+            setTimeout(() => {
+              currentIndex = (currentIndex + 1) % headlines.length;
+              startTickerAnimation();
+            }, 500);
+          }
+        }
+        requestAnimationFrame(step);
       }
       
-      function onTransitionEnd() {
-        // Remove the event listener to avoid duplicate calls
-        const ticker = document.getElementById("tickerText");
-        ticker.removeEventListener("transitionend", onTransitionEnd);
-        setTimeout(() => {
-          index = (index + 1) % headlines.length;
-          animate();
-        }, 500);
-      }
-      
-      animate();
-    }
-    
-    animateTicker();
+      startTickerAnimation();
+    })();
     
     /***** Audio Streaming Setup *****/
-    // Use the updated MP3 feed URL.
     const audio = new Audio("https://listen.broadcastify.com/ysg4rc3njfbtzhq.mp3");
     const playBtn = document.getElementById("playPauseBtn");
     
@@ -268,7 +255,6 @@
       }
     });
     
-    // Log any audio errors for debugging
     audio.addEventListener("error", function(e) {
       console.error("Audio error:", e);
     });
@@ -283,7 +269,6 @@
         document.getElementById(this.dataset.tab).classList.add("active");
       });
       
-      // Allow keyboard activation (Enter or Space)
       tab.addEventListener("keydown", function(e) {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
